@@ -9,9 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllServices = void 0;
+exports.createServices = exports.getAllServices = void 0;
 const prisma_1 = require("../../lib/prisma");
 const getAllServices = () => __awaiter(void 0, void 0, void 0, function* () {
     return prisma_1.prisma.services.findMany();
 });
 exports.getAllServices = getAllServices;
+const createServices = (servicesData) => __awaiter(void 0, void 0, void 0, function* () {
+    return prisma_1.prisma.services.create({ data: servicesData });
+});
+exports.createServices = createServices;

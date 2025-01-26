@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getServices = void 0;
+exports.createNewServices = exports.getServices = void 0;
 const services_1 = require("./services");
 const getServices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -21,3 +21,14 @@ const getServices = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getServices = getServices;
+const createNewServices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name, price } = req.body;
+        const newService = yield (0, services_1.createServices)({ name, price });
+        res.status(201).json(newService);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Erro ao criar serviço" });
+    }
+});
+exports.createNewServices = createNewServices;
