@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "wd2e2adwua3215nAXW@_dw2XDauUNDW";
 const authenticateJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        res.status(401).json({ message: "Token não fornecido" });
+        res.status(401).json({ message: "Token não fornecido!" });
         return;
     }
     const token = authHeader.split(" ")[1];
