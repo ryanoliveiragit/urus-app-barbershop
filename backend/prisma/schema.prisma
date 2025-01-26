@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  client
+  professional
+  admin
+}
+
+enum TokenType {
+  EMAIL
+  API
+}
+
+model Services {
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  price       Decimal     @db.Decimal(10, 2) 
+  agendamentos Agendament[] 
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(100)
+  password  String
+  phone     String?  @db.VarChar(15)
+  role      Role     @default(client)
+  specialty String?  @db.VarChar(100)
+  createdAt DateTime @default(now())
+  image     String   @default("https://www.ibimirim.pe.leg.br/imagens/semimagemavatar.png") @db.VarChar(255)
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  clientAppointments       Agendament[] @relation("ClientAppointments")
+  professionalAppointments Agendament[] @relation("ProfessionalAppointments")
+}
+
+model Agendament {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  professionalId  Int
+  serviceId       Int
+  appointmentDate String
+  appointmentTime String
+  status          String   @default("scheduled")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relacionamentos
+  user         User @relation("ClientAppointments", fields: [userId], references: [id], onDelete: Cascade)
+  professional User @relation("ProfessionalAppointments", fields: [professionalId], references: [id], onDelete: Cascade)
+  service      Services @relation(fields: [serviceId], references: [id])
+
+  @@index([userId])
+  @@index([professionalId])
+}
+
+model Commodities {
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(100)
+  image String @db.VarChar(255)
+}
+
+model News {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(100)
+}
+
+model Subscriptions {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(100)
+  description String @db.Text
+  price       Float
+  benefits    String @db.Text
+}
