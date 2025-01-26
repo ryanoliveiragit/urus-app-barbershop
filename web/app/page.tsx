@@ -108,7 +108,7 @@ export default function Home() {
     !selectedDateTime.time;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-t from-black to-transparent">
+    <div className="flex flex-col h-svh  bg-gradient-to-t from-black  to-transparent">
       <header className="absolute -z-10 -top-14">
         <Image
           src={imgHeadere || "/placeholder.svg"}
