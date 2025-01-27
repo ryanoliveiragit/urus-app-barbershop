@@ -93,7 +93,7 @@ export default function Home() {
         appointmentData,
         {
           headers: {
-            Authorization: `bearer ${session?.accessToken}`,
+            Authorization: `Bearer ${session?.accessToken}`,
           },
         }
       );
