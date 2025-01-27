@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "wd2e2adwua3215nAXW@_dw2XDauUNDW"
+const JWT_SECRET = process.env.JWT_SECRET || "seu-google-client-secret"
 
 export interface UserPayload {
   userId: number;
