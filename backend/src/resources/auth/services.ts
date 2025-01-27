@@ -15,7 +15,7 @@ export const loginUser = async (email: string, password: string) => {
     throw new Error("Usuário não encontrado")
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password)
+  const isPasswordValid = await bcrypt.compare(password, user?.password ??'')
 
   if (!isPasswordValid) {
     throw new Error("Credenciais inválidas")

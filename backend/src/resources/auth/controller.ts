@@ -31,7 +31,7 @@ export const login = async (req: Request, res: Response) => {
   if (!user) {
     throw Error("User does not exist");
   }
-  if (!compareSync(password, user.password)) {
+  if (!compareSync(password, user.password ??'')) {
     throw Error("Incorrect password");
   }
   const token = jwt.sign({

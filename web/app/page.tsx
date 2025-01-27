@@ -48,6 +48,7 @@ export default  function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerOpenServices, setIsDrawerOpenServices] = useState(false);
 const { data: session } = useSession()
+
   const handleSelectProfessional = (
     name: string,
     id: string,
