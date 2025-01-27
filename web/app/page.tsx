@@ -17,6 +17,9 @@ import Image from "next/image";
 import imgHeadere from "../public/urus.jpeg";
 import axios from "axios";
 import { formatDateString } from "@/utils/date-object";
+import { LoginBtn } from "@/components/shared/login/login";
+
+import { useSession } from "next-auth/react";
 
 interface Service {
   name: string;
@@ -24,7 +27,7 @@ interface Service {
   price: number;
 }
 
-export default function Home() {
+export default  function Home() {
   const [selectProfessional, setSelectedProfessional] = useState<{
     name: string;
     id: string;
@@ -34,7 +37,6 @@ export default function Home() {
     id: "",
     image: "",
   });
-
   const [selectServicesAPI, setSelectedServiceAPI] = useState<Service[]>([]);
   const [selectedDateTime, setSelectedDateTime] = useState<{
     date: string;
@@ -45,7 +47,7 @@ export default function Home() {
   });
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerOpenServices, setIsDrawerOpenServices] = useState(false);
-
+const { data: session } = useSession()
   const handleSelectProfessional = (
     name: string,
     id: string,
@@ -119,6 +121,8 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
       </header>
+      {session?.user?.name}
+      <LoginBtn />
       <Layout>
         <section className="flex flex-col gap-4 mt-[9rem]">
           <section className="text-md text-center flex-col flex gap-3">
