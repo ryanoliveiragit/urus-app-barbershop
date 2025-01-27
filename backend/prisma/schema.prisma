@@ -28,16 +28,17 @@ model Services {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+ id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(100)
-  password  String
+  password  String?  // Tornando a senha opcional para usuários do Google
   phone     String?  @db.VarChar(15)
   role      Role     @default(client)
   specialty String?  @db.VarChar(100)
   createdAt DateTime @default(now())
   image     String   @default("https://www.ibimirim.pe.leg.br/imagens/semimagemavatar.png") @db.VarChar(255)
   updatedAt DateTime @updatedAt
+  googleId  String?  @unique // Adicionando um campo para o ID do Google
 
   // Relacionamentos
   clientAppointments       Agendament[] @relation("ClientAppointments")

@@ -67,12 +67,13 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.signup = signup;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { email, password } = req.body;
     let user = yield prisma_1.prisma.user.findFirst({ where: { email } });
     if (!user) {
         throw Error("User does not exist");
     }
-    if (!(0, bcrypt_1.compareSync)(password, user.password)) {
+    if (!(0, bcrypt_1.compareSync)(password, (_a = user.password) !== null && _a !== void 0 ? _a : '')) {
         throw Error("Incorrect password");
     }
     const token = jwt.sign({

@@ -17,31 +17,39 @@ const getAllAgendaments = () => __awaiter(void 0, void 0, void 0, function* () {
 exports.getAllAgendaments = getAllAgendaments;
 const createAgendament = (agendamentData) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, professionalId, serviceId, appointmentDate, appointmentTime } = agendamentData;
-    // Verificar se o usuário existe
-    const userExists = yield prisma_1.prisma.user.findUnique({
-        where: { id: userId },
-    });
+    // Verificar se o userId é um número ou uma string
+    let userExists;
+    if (typeof userId === 'number') {
+        // Se for um número, é um ID de usuário
+        userExists = yield prisma_1.prisma.user.findUnique({
+            where: { id: userId },
+        });
+    }
+    else if (typeof userId === 'string') {
+        // Se for uma string, é um googleId
+        userExists = yield prisma_1.prisma.user.findUnique({
+            where: { googleId: userId }, // Busca pelo googleId
+        });
+    }
+    // Verificar se o usuário foi encontrado
     if (!userExists) {
-        throw new Error(`Usuário com ID ${userId} não encontrado`);
+        throw new Error(`Usuário com ${typeof userId === 'string' ? `googleId ${userId}` : `ID ${userId}`} não encontrado.`);
     }
-    // Verificar se o profissional existe
-    const professionalExists = yield prisma_1.prisma.user.findUnique({
-        where: { id: professionalId },
-    });
+    // Verificar se o profissional e o serviço existem
+    const [professionalExists, serviceExists] = yield Promise.all([
+        prisma_1.prisma.user.findUnique({ where: { id: professionalId } }),
+        prisma_1.prisma.services.findUnique({ where: { id: serviceId } }),
+    ]);
     if (!professionalExists) {
-        throw new Error(`Profissional com ID ${professionalId} não encontrado`);
+        throw new Error(`Profissional com ID ${professionalId} não encontrado.`);
     }
-    // Verificar se o serviço existe
-    const serviceExists = yield prisma_1.prisma.services.findUnique({
-        where: { id: serviceId },
-    });
     if (!serviceExists) {
-        throw new Error(`Serviço com ID ${serviceId} não encontrado`);
+        throw new Error(`Serviço com ID ${serviceId} não encontrado.`);
     }
     // Criar o agendamento
     return prisma_1.prisma.agendament.create({
         data: {
-            userId,
+            userId: userExists.id, // Sempre usamos o ID numérico do usuário
             professionalId,
             serviceId,
             appointmentDate,

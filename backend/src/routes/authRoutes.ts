@@ -1,9 +1,12 @@
-import {Router} from 'express'
-import {login, signup} from '../resources/auth/controller'
+import express from 'express';
+import { login, signup } from '../resources/auth/controller'
+import { googleAuth } from '../resources/auth/services';
 
-const authRoutes:Router = Router()
 
-authRoutes.post('/signup', signup)
-authRoutes.post('/login', login)
+const router = express.Router();
 
-export default authRoutes
+router.post('/', login);
+router.post('/', signup);
+router.post('/google', googleAuth);
+
+export default router;

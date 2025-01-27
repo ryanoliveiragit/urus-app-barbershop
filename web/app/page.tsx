@@ -6,20 +6,15 @@ import { SelectDate } from "@/components/shared/select/select-date";
 import { SelectServices } from "@/components/shared/select/select-services";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
-import {
-  Calendar,
-  ChevronRight,
-  HomeIcon as House,
-  Scissors,
-  User,
-} from "lucide-react";
+import { Calendar, ChevronRight, Scissors, User } from "lucide-react";
 import Image from "next/image";
 import imgHeadere from "../public/urus.jpeg";
 import axios from "axios";
 import { formatDateString } from "@/utils/date-object";
 import { LoginBtn } from "@/components/shared/login/login";
-
 import { useSession } from "next-auth/react";
+import { Footer } from "@/components/shared/footer/footer";
+import { useToast } from "@/hooks/use-toast";
 
 interface Service {
   name: string;
@@ -27,7 +22,7 @@ interface Service {
   price: number;
 }
 
-export default  function Home() {
+export default function Home() {
   const [selectProfessional, setSelectedProfessional] = useState<{
     name: string;
     id: string;
@@ -37,6 +32,7 @@ export default  function Home() {
     id: "",
     image: "",
   });
+  const { toast } = useToast();
   const [selectServicesAPI, setSelectedServiceAPI] = useState<Service[]>([]);
   const [selectedDateTime, setSelectedDateTime] = useState<{
     date: string;
@@ -47,7 +43,7 @@ export default  function Home() {
   });
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDrawerOpenServices, setIsDrawerOpenServices] = useState(false);
-const { data: session } = useSession()
+  const { data: session } = useSession();
 
   const handleSelectProfessional = (
     name: string,
@@ -84,7 +80,7 @@ const { data: session } = useSession()
     }
 
     const appointmentData = {
-      userId: 1, // Exemplo de ID do usuário (substituir pelo real)
+      userId: session?.user.id,
       professionalId: parseInt(selectProfessional.id),
       serviceId: selectServicesAPI[0].id,
       appointmentDate: selectedDateTime.date,
@@ -92,18 +88,37 @@ const { data: session } = useSession()
     };
 
     try {
-      const response = await axios.post(
+      await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/agendament`,
-        appointmentData
+        appointmentData,
+        {
+          headers: {
+            Authorization: `bearer ${session?.accessToken}`,
+          },
+        }
       );
-      console.log("Agendamento criado com sucesso:", response.data);
-      alert("Agendamento realizado com sucesso!");
+
+      toast({
+        title: "Sucesso!",
+        description: "Agendamento criado com sucesso",
+      });
+
+      setSelectedProfessional({
+        name: "Selecione o profissional",
+        id: "",
+        image: "",
+      });
+      setSelectedServiceAPI([]);
+      setSelectedDateTime({ date: "", time: "" });
     } catch (error) {
       console.error("Erro ao criar agendamento:", error);
-      alert("Erro ao realizar agendamento. Tente novamente.");
+      toast({
+        title: "Erro!",
+        variant: "destructive",
+        description: "Erro ao realizar agendamento. Tente novamente.",
+      });
     }
   };
-
   const isButtonDisabled =
     !selectProfessional.id ||
     selectServicesAPI.length === 0 ||
@@ -111,7 +126,7 @@ const { data: session } = useSession()
     !selectedDateTime.time;
 
   return (
-    <div className="flex flex-col h-svh  bg-gradient-to-t from-black  to-transparent">
+    <div className="flex flex-col h-screen  bg-gradient-to-t from-black  to-transparent">
       <header className="absolute -z-10 -top-14">
         <Image
           src={imgHeadere || "/placeholder.svg"}
@@ -122,10 +137,9 @@ const { data: session } = useSession()
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
       </header>
-      {session?.user?.name}
-      <LoginBtn />
+
       <Layout>
-        <section className="flex flex-col gap-4 mt-[9rem]">
+        <section className="flex flex-col gap-4 mt-[8rem]">
           <section className="text-md text-center flex-col flex gap-3">
             <h1 className="text-2xl font-semibold">Agende seu horário</h1>
             <p className="text-[#D4D4D4] font-medium text-[14px]">
@@ -193,8 +207,7 @@ const { data: session } = useSession()
               closeDrawer={closeDrawerServices}
             />
           </Drawer>
-
-          {/* Select Date */}
+      
           <Drawer>
             <DrawerTrigger asChild>
               <Button
@@ -224,17 +237,15 @@ const { data: session } = useSession()
           <Button
             variant="default"
             disabled={isButtonDisabled}
-            className="flex items-center w-full  bg-white text-black p-8"
+            className="flex items-center w-full rounded-2xl  bg-white text-black p-8"
             onClick={handleSubmit}
           >
-            <span className="text-md font-semibold">Realizar agendamento</span>
+            <span className="text-md font-semibold">Confirmar Agendamento</span>
           </Button>
         </section>
       </Layout>
-
-      <footer className="mt-auto p-3.5 bg-zinc-900 justify-center flex w-full items-center">
-        <House />
-      </footer>
+      <LoginBtn />
+      <Footer />
     </div>
   );
 }
