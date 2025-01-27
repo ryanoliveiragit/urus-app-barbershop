@@ -6,7 +6,7 @@ import * as jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient()
 
-const JWT_SECRET = process.env.JWT_SECRET || "wd2e2adwua3215nAXW@_dw2XDauUNDW"
+const JWT_SECRET = process.env.JWT_SECRET || "uma-chave-secreta-aleatoria"
 
 export const loginUser = async (email: string, password: string) => {
   const user = await prisma.user.findUnique({
