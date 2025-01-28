@@ -246,8 +246,8 @@ export default function Home() {
 
           {/* Submit Button */}
           <Button
-            variant="secondary"
-            className="text-md font-semibold bg-white text-black"
+            variant="default"
+            className="text-md font-semibold"
             disabled={isButtonDisabled}
             onClick={handleSubmit}
           >
