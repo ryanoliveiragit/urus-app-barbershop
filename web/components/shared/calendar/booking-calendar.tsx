@@ -58,6 +58,7 @@ export function BookingCalendar({ onDateTimeSelect }: BookingCalendarProps) {
 
   return (
     <div className=" md:mx-auto mt-2">
+      <h1 className="text-lg font-semibold text-white w-full text-center m-4">Data do agendamento</h1>
       <Calendar
         mode="single"
         selected={selectedDate}
@@ -89,7 +90,7 @@ export function BookingCalendar({ onDateTimeSelect }: BookingCalendarProps) {
                   isWithinBookingInterval(date, startDate, 30) && (
                     <Badge
                       variant="outline"
-                      className={`absolute bottom-0 right-0 w-2 h-2 p-0 rounded-full ${
+                      className={`absolute bottom-1 right-1 w-2 h-2 p-0 rounded-full ${
                         availability.available ? "bg-green-500" : "bg-red-500"
                       }`}
                     />
@@ -101,8 +102,8 @@ export function BookingCalendar({ onDateTimeSelect }: BookingCalendarProps) {
       />
 
       {selectedDate && selectedDayAvailability && (
-        <div className="mt-2  max-w-[15.5rem] ">
-          <section className="text-sm font-medium text-muted-foreground  mb-2 ">
+        <div className="mt-2 ">
+          <section className="text-md font-medium text-muted-foreground  mb-2 ">
             Dia selecionado:{" "}
             <span className="font-bold text-white">
               {formatDate(selectedDate)}

@@ -23,20 +23,22 @@ export const SelectDate = ({ onDateSelect }: { onDateSelect: (date: Date, time: 
     <DrawerContent>
       <section className="mx-auto">
         <BookingCalendar onDateTimeSelect={handleDateTimeSelect} />
-      </section>
+        </section>
 
-      <DrawerFooter className="flex mx-[2.6rem] items-center  justify-center">
+      <DrawerFooter className="flex items-center  w-full ">
         <DrawerClose asChild >
           <Button
           variant="default"
-            className="w-full p-7 text-[16px] font-semibold"
+          
+            className="w-[98%]  text-[16px] font-semibold"
             disabled={!selectedDate || !selectedTime} 
           >
-            Selecionar data
+            Continuar
           </Button>
           
         </DrawerClose>
       </DrawerFooter>
+    
     </DrawerContent>
   );
 };

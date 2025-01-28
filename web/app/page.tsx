@@ -9,6 +9,7 @@ import { Drawer, DrawerTrigger } from "@/components/ui/drawer";
 import { Calendar, ChevronRight, Scissors, User } from "lucide-react";
 import Image from "next/image";
 import imgHeadere from "../public/urus.jpeg";
+import imgLogo from "../public/logo_barbosa.svg";
 import axios from "axios";
 import { formatDateString } from "@/utils/date-object";
 import { LoginBtn } from "@/components/shared/login/login";
@@ -126,8 +127,8 @@ export default function Home() {
     !selectedDateTime.time;
 
   return (
-    <div className="flex flex-col h-screen  bg-gradient-to-t from-black  to-transparent">
-      <header className="absolute -z-10 -top-14">
+    <div className="flex flex-col relative h-screen  bg-gradient-to-t from-black  to-transparent">
+      <header className="absolute -z-10 -top-10">
         <Image
           src={imgHeadere || "/placeholder.svg"}
           width={800}
@@ -135,9 +136,19 @@ export default function Home() {
           alt="Imagem de cabeçalho"
           className="object-contain"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-      </header>
+   
+        <div className="absolute inset-0  bg-gradient-to-t from-black via-black/50 to-transparent"></div>
 
+      </header>
+ <section>
+ <Image
+  src={imgLogo || "/placeholder.svg"}
+  width={250}
+  height={400}
+  alt="Logo"
+  className="absolute left-[4rem] -top-10 invert brightness-0"
+ />
+ </section>
       <Layout>
         <section className="flex flex-col gap-4 mt-[8rem]">
           <section className="text-md text-center flex-col flex gap-3">
@@ -147,12 +158,12 @@ export default function Home() {
             </p>
           </section>
 
-          {/* Select Professional */}
+     
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
               <Button
-                variant="ghost"
-                className="flex items-center justify-between w-full bg-zinc-900 hover:bg-zinc-800 text-white h-[72px] px-4 rounded-2xl"
+                variant="secondary"
+            className="justify-between"
                 onClick={() => setIsDrawerOpen(true)}
               >
                 <div className="flex items-center justify-center gap-3">
@@ -167,7 +178,7 @@ export default function Home() {
                   ) : (
                     <User className="w-24 h-24" />
                   )}
-                  <span className="text-lg">{selectProfessional.name}</span>
+                  <span>{selectProfessional.name}</span>
                 </div>
                 <ChevronRight className="w-6 h-6" />
               </Button>
@@ -185,13 +196,13 @@ export default function Home() {
           >
             <DrawerTrigger asChild>
               <Button
-                variant="ghost"
-                className="flex items-center justify-between w-full bg-zinc-900 hover:bg-zinc-800 text-white h-[72px] px-4 rounded-2xl"
+                variant="secondary"
+                   className="justify-between"
                 onClick={() => setIsDrawerOpenServices(true)}
               >
                 <div className="flex items-center justify-center gap-3">
                   <Scissors className="w-6 h-6" />
-                  <span className="text-lg">
+                  <span>
                     {selectServicesAPI.length > 0
                       ? selectServicesAPI
                           .map((service) => service.name)
@@ -211,12 +222,12 @@ export default function Home() {
           <Drawer>
             <DrawerTrigger asChild>
               <Button
-                variant="ghost"
-                className="flex items-center justify-between w-full bg-zinc-900 hover:bg-zinc-800 text-white h-[72px] px-4 rounded-2xl"
+                variant="secondary"
+                   className="justify-between"
               >
                 <div className="flex items-center gap-3">
                   <Calendar className="w-6 h-6" />
-                  <span className="text-lg">
+                  <span>
                     {selectedDateTime.time ? (
                       <>
                         {formatDateString(selectedDateTime.date)} às{" "}
@@ -235,12 +246,12 @@ export default function Home() {
 
           {/* Submit Button */}
           <Button
-            variant="default"
+            variant="secondary"
+            className="text-md font-semibold bg-white text-black"
             disabled={isButtonDisabled}
-            className="flex items-center w-full rounded-2xl  bg-white text-black p-8"
             onClick={handleSubmit}
           >
-            <span className="text-md font-semibold">Confirmar Agendamento</span>
+           Confirmar Agendamento
           </Button>
         </section>
       </Layout>

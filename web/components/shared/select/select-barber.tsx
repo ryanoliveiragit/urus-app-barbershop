@@ -23,7 +23,7 @@ export const SelectBarber = ({
 }: SelectBarberProps) => {
   const { barbers, isLoading, isError } = useBarbers();
   const [selectedBarberId, setSelectedBarberId] = useState<string | null>(null);
-  console.log(barbers);
+
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error loading barbers</div>;
 
