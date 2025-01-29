@@ -13,7 +13,7 @@ import Image from "next/image";
 import { Barber } from "@/@types/barber";
 
 interface SelectBarberProps {
-  setSelectedProfessional: (name: string, id: string, image: string) => void;
+  setSelectedProfessional: (name: string, id: string, image: string, specialty: string) => void;
   closeDrawer: () => void;
 }
 
@@ -29,7 +29,7 @@ export const SelectBarber = ({
 
   const handleSelectBarber = (barber: Barber) => {
     setSelectedBarberId(barber.id);
-    setSelectedProfessional(barber.name, barber.id, barber.image); 
+    setSelectedProfessional(barber.name, barber.id, barber.image, barber.specialty);
     closeDrawer();
   };
   return (
@@ -53,7 +53,7 @@ export const SelectBarber = ({
               alt={barber.name}
               width={40}
               height={40}
-              className="rounded-full mr-2"
+              className="rounded-full object-cover h-10"
             />
             <div className="text-left flex flex-col gap-.5 text-sm">
               <span className="font-semibold">{barber.name}</span>

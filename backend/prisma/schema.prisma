@@ -19,12 +19,13 @@ enum TokenType {
 }
 
 model Services {
-  id          Int         @id @default(autoincrement())
-  name        String      @db.VarChar(100)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  price       Decimal     @db.Decimal(10, 2) 
-  agendamentos Agendament[] 
+  id            Int         @id @default(autoincrement())
+  name          String      @db.VarChar(100)
+  time          String      @default("30") @db.VarChar(100) // Valor padrão
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  price         Decimal     @db.Decimal(10, 2) 
+  agendamentos  Agendament[] 
 }
 
 model User {

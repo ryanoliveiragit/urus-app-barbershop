@@ -28,10 +28,12 @@ export default function Home() {
     name: string;
     id: string;
     image: string;
+    specialty: string;
   }>({
     name: "Selecione o profissional",
     id: "",
     image: "",
+    specialty: "",
   });
   const { toast } = useToast();
   const [selectServicesAPI, setSelectedServiceAPI] = useState<Service[]>([]);
@@ -49,9 +51,10 @@ export default function Home() {
   const handleSelectProfessional = (
     name: string,
     id: string,
-    image: string
+    image: string,
+    specialty: string
   ) => {
-    setSelectedProfessional({ name, id, image });
+    setSelectedProfessional({ name, id, image, specialty });
     setIsDrawerOpen(false);
   };
 
@@ -107,6 +110,7 @@ export default function Home() {
       setSelectedProfessional({
         name: "Selecione o profissional",
         id: "",
+        specialty: "",
         image: "",
       });
       setSelectedServiceAPI([]);
@@ -169,16 +173,20 @@ export default function Home() {
                 <div className="flex items-center justify-center gap-3">
                   {selectProfessional.image ? (
                     <Image
-                      src={selectProfessional.image}
+                      src={selectProfessional.image || "/placeholder.svg"}
                       alt="Foto do barbeiro"
-                      width={45}
-                      height={45}
-                      className="border-2  rounded-full"
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover h-10 "
                     />
                   ) : (
                     <User className="w-24 h-24" />
                   )}
-                  <span>{selectProfessional.name}</span>
+                <div className="flex flex-col justify-start">
+                <span>{selectProfessional.name}</span>
+              
+                </div>
+      
                 </div>
                 <ChevronRight className="w-6 h-6" />
               </Button>
