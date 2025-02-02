@@ -1,25 +1,30 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { Preference } from "mercadopago"
-import mpClient from "@/lib/mercado-pago"
+import { type NextRequest, NextResponse } from "next/server";
+import { Preference } from "mercadopago";
+import mpClient from "@/lib/mercado-pago";
 
 export async function POST(req: NextRequest) {
-  const requestBody = await req.json()
-  const { testeId, userEmail, items } = requestBody
+  const requestBody = await req.json();
+  const { testeId, userEmail, items } = requestBody;
 
   try {
-    const preference = new Preference(mpClient)
+    const preference = new Preference(mpClient);
 
-    const validItems = items.map((item: { name: string; description: string; price: number }, index: number) => {
-      return {
-        id: index.toString(),
-        title: item.name,
-        description: item.description,
-        quantity: 1,
-        unit_price: item.price,
-        currency_id: "BRL",
-        category_id: "service",
+    const validItems = items.map(
+      (
+        item: { name: string; description: string; price: number },
+        index: number
+      ) => {
+        return {
+          id: index.toString(),
+          title: item.name,
+          description: item.description,
+          quantity: 1,
+          unit_price: item.price,
+          currency_id: "BRL",
+          category_id: "service",
+        };
       }
-    })
+    );
 
     const createdPreference = await preference.create({
       body: {
@@ -43,21 +48,23 @@ export async function POST(req: NextRequest) {
           pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
         },
       },
-    })
+    });
 
-    console.log("Preferência criada:", JSON.stringify(createdPreference, null, 2))
+    console.log(
+      "Preferência criada:",
+      JSON.stringify(createdPreference, null, 2)
+    );
 
     if (!createdPreference.id) {
-      throw new Error("No preferenceID")
+      throw new Error("No preferenceID");
     }
 
     return NextResponse.json({
       preferenceId: createdPreference.id,
       initPoint: createdPreference.init_point,
-    })
+    });
   } catch (err) {
-    console.error("Erro ao criar a preferência:", err)
-    return NextResponse.error()
+    console.error("Erro ao criar a preferência:", err);
+    return NextResponse.error();
   }
 }
-
