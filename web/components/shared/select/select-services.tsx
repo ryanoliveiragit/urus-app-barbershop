@@ -11,7 +11,7 @@ import { useServices } from "@/hooks/useServices";
 import { Services as ServviceTYPE } from "@/@types/services";
 
 interface SelectServicesProps {
-  setSelectedServicesAPI: (name: string, id: string, price: number, time: number) => void;
+  setSelectedServicesAPI: (name: string, id: string, price: string, time: number) => void;
   closeDrawer: () => void;
 }
 
@@ -28,7 +28,7 @@ export const SelectServices = ({
   if (isError) return <div>Error loading services</div>;
 
   const handleSelectService = (service: ServviceTYPE) => {
-    setSelectedServicesAPI(service.name, service.id, service.price, service.time);
+    setSelectedServicesAPI(service.name, service.id, service.price.toString(), service.time);
     setSelectedServiceId(service.id);
     closeDrawer(); 
   };

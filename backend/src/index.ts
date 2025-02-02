@@ -6,6 +6,7 @@ import commoditiesRoutes from "./routes/commoditiesRoutes";
 import servicesRoutes from "./routes/servicesRoutes";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
+import paymentOrderRoutes from "./routes/paymentOrderRoutes";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use("/agendament", agendamentRoutes);
 app.use("/subscription", subscriptionsRoutes);
 app.use("/commodity", commoditiesRoutes);
 app.use("/auth", authRoutes);
+app.use("/orders", paymentOrderRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

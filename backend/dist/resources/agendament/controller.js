@@ -26,12 +26,12 @@ const createNewAgendament = (req, res) => __awaiter(void 0, void 0, void 0, func
         const { userId, professionalId, serviceId, appointmentDate, appointmentTime } = req.body;
         // Verificação de campos obrigatórios
         if (!userId) {
-            return res.status(400).json({ error: "É necessário fornecer userId ou googleId." });
+            return res.status(400).json({ error: "É necessário fornecer userId." });
         }
         if (!professionalId || !serviceId || !appointmentDate || !appointmentTime) {
-            return res.status(400).json({ error: "Todos os campos são obrigatórios, exceto userId ou googleId." });
+            return res.status(400).json({ error: "Todos os campos são obrigatórios." });
         }
-        // Chamada do serviço para criar o agendamento
+        // Cria o novo agendamento
         const newAgendament = yield (0, services_1.createAgendament)({
             userId,
             professionalId,
@@ -39,11 +39,10 @@ const createNewAgendament = (req, res) => __awaiter(void 0, void 0, void 0, func
             appointmentDate,
             appointmentTime,
         });
-        // Retorno do sucesso
-        return res.status(201).json(newAgendament);
+        return res.status(201).json({ newAgendament });
     }
     catch (error) {
-        console.error("Erro ao criar agendamento:", error); // Para facilitar depuração
+        console.error("Erro ao criar agendamento:", error instanceof Error ? error.stack : error);
         return res.status(500).json({
             error: "Erro ao criar agendamento",
             message: error.message || "Erro desconhecido",

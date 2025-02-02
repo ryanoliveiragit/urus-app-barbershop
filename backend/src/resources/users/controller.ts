@@ -20,8 +20,7 @@ export const getBarbers = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: "Erro ao obter profissionais" });
   }
-};
-
+}
 export const createNewUser = async (req: Request, res: Response) => {
   try {
     const { name, email, password, phone, role } = req.body;

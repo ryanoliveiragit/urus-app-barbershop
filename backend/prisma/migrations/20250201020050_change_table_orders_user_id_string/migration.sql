@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "OrderPayment" ALTER COLUMN "userId" SET DATA TYPE VARCHAR(100);

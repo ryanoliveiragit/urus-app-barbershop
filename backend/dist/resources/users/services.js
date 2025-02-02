@@ -10,13 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUser = exports.getAllBarbers = exports.getAllUsers = void 0;
-const prisma_1 = require("../../lib/prisma");
+const client_1 = require("@prisma/client");
 const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
-    return prisma_1.prisma.user.findMany();
+    return prisma.user.findMany();
 });
 exports.getAllUsers = getAllUsers;
+const prisma = new client_1.PrismaClient({
+    log: ['query'],
+});
 const getAllBarbers = () => __awaiter(void 0, void 0, void 0, function* () {
-    return yield prisma_1.prisma.user.findMany({
+    return yield prisma.user.findMany({
         where: {
             role: 'professional',
         },
@@ -31,6 +34,6 @@ const getAllBarbers = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.getAllBarbers = getAllBarbers;
 const createUser = (userData) => __awaiter(void 0, void 0, void 0, function* () {
-    return prisma_1.prisma.user.create({ data: userData });
+    return prisma.user.create({ data: userData });
 });
 exports.createUser = createUser;

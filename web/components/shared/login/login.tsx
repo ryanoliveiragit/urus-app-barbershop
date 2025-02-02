@@ -12,7 +12,7 @@ export const LoginBtn = () => {
 
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
-      sendUserDataToBackend(session.user);
+      sendUserDataToBackend(session?.user)
     }
   }, [status, session]);
 

@@ -50,7 +50,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const client_1 = require("@prisma/client");
 const jwt = __importStar(require("jsonwebtoken"));
 const prisma = new client_1.PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || "wd2e2adwua3215nAXW@_dw2XDauUNDW";
+const JWT_SECRET = process.env.JWT_SECRET || "uma-chave-secreta-aleatoria";
 const loginUser = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const user = yield prisma.user.findUnique({
