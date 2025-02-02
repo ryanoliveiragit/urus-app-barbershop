@@ -1,29 +1,25 @@
 import { NextRequest, NextResponse } from "next/server"
+import { Payment } from "mercadopago"
+import mpClient from "@/lib/mercado-pago"
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const payment_id = searchParams.get("payment_id")
+  const paymentId = searchParams.get("payment_id")
 
-  if (!payment_id) {
+  if (!paymentId) {
     return NextResponse.json({ error: "payment_id é obrigatório" }, { status: 400 })
   }
 
   try {
-    const mercadoPagoResponse = await fetch(
-      `https://api.mercadopago.com/v1/payments/${payment_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.MERCADO_PAGO_ACCESS_TOKEN}`,
-        },
-      }
-    )
+    const payment = new Payment(mpClient)
+    const paymentData = await payment.get({ id: paymentId })
 
-    if (!mercadoPagoResponse.ok) {
-      throw new Error(`Erro ao buscar pagamento: ${mercadoPagoResponse.statusText}`)
-    }
+    console.log("Dados do pagamento:", paymentData)
 
-    const paymentData = await mercadoPagoResponse.json()
-    return NextResponse.json({ status: paymentData.status, paymentData })
+    return NextResponse.json({ 
+      status: paymentData.status,
+      isApproved: paymentData.status === "approved" || paymentData.date_approved !== null
+    })
   } catch (error) {
     console.error("Erro ao consultar pagamento:", error)
     return NextResponse.json({ error: "Erro interno ao consultar pagamento" }, { status: 500 })

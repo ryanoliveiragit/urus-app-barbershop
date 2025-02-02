@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
           failure: `${req.headers.get("origin")}/?status=falha`,
           pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
         },
+        notification_url: `${req.headers.get("origin")}/api/mercado-pago/webhook`,
       },
     });
 

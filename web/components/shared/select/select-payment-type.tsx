@@ -30,7 +30,6 @@ export const SelectPaymentMethod = ({ selectServicesAPI }: SelectPaymentMethodPr
 
   const handleConfirmPayment = async () => {
     if (selectedPaymentMethod === "app") {
-      // Verifica se o selectServicesAPI é um array válido e contém dados
       if (!Array.isArray(selectServicesAPI) || selectServicesAPI.length === 0) {
         toast({
           title: "Erro no pagamento",
@@ -41,7 +40,6 @@ export const SelectPaymentMethod = ({ selectServicesAPI }: SelectPaymentMethodPr
       }
   
       try {
-        // Gera a lista de itens com os serviços selecionados
         const checkoutResponse = await createMercadoPagoCheckout({
           testeId: session?.user?.id ?? "",
           userEmail: session?.user?.email ?? "",
@@ -53,10 +51,12 @@ export const SelectPaymentMethod = ({ selectServicesAPI }: SelectPaymentMethodPr
           })),
         })
   
-        // Agora a resposta tem o tipo correto e você pode acessar `initPoint`
         if (!checkoutResponse.initPoint) {
           throw new Error("Erro ao iniciar o checkout")
         }
+  
+        // Salvar o paymentId em localStorage ou em um estado global
+        localStorage.setItem("currentPaymentId", checkoutResponse.paymentId)
   
         // Redireciona para o checkout do Mercado Pago
         router.push(checkoutResponse.initPoint)
