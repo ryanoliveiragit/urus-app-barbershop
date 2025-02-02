@@ -5,7 +5,17 @@ import { useRouter } from "next/navigation";
 interface CheckoutData {
   testeId: string;
   userEmail: string | null;
-  items: unknown[];
+  items: {
+    id: string  | boolean;
+    name: string | boolean
+    description: string;
+    price: number;
+  }[];
+  paymentMethods: {
+    pix: {
+      expirationDate: string;
+    };
+  };
 }
 
 export const useMercadoPago = () => {

@@ -2,112 +2,98 @@
 import { useState } from "react"
 import { DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { Smartphone, Wallet } from "lucide-react"
+import { Smartphone } from 'lucide-react'
 import useMercadoPago from "@/hooks/use-mercado-pago"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Service } from "@/app/page"
+import { PixModal } from "./pix-modal"
 
 
 interface SelectPaymentMethodProps {
   closeDrawer: () => void
-  selectServicesAPI: Service[] // Recebe os serviços selecionados
+  selectServicesAPI: Service[]
 }
 
-export const SelectPaymentMethod = ({ selectServicesAPI }: SelectPaymentMethodProps) => {
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("")
+export const SelectPaymentMethod = ({ selectServicesAPI, closeDrawer }: SelectPaymentMethodProps) => {
+  const [isPixModalOpen, setIsPixModalOpen] = useState(false)
+  const [pixQrCodeUrl, setPixQrCodeUrl] = useState("")
+  const [pixPaymentId, setPixPaymentId] = useState("")
   const { createMercadoPagoCheckout } = useMercadoPago()
   const { data: session } = useSession()
-  const router = useRouter()
   const { toast } = useToast()
 
-  const paymentMethods = [
-    { id: "app", name: "Pague pelo app", icon: <Smartphone className="w-6 h-6" /> },
-    { id: "local", name: "Pague no local", icon: <Wallet className="w-6 h-6" /> },
-  ]
-
-
   const handleConfirmPayment = async () => {
-    if (selectedPaymentMethod === "app") {
-      if (!Array.isArray(selectServicesAPI) || selectServicesAPI.length === 0) {
-        toast({
-          title: "Erro no pagamento",
-          description: "Nenhum serviço selecionado para o pagamento.",
-          variant: "destructive",
-        })
-        return
+    if (!Array.isArray(selectServicesAPI) || selectServicesAPI.length === 0) {
+      toast({
+        title: "Erro no pagamento",
+        description: "Nenhum serviço selecionado para o pagamento.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      const checkoutResponse = await createMercadoPagoCheckout({
+        testeId: session?.user?.id ?? "",
+        userEmail: session?.user?.email ?? "",
+        items: selectServicesAPI.map((service) => ({
+          id: "1",
+          name: service.name,
+          description: `Serviço de ${service.name}`,
+          price: Number(service.price),
+        })),
+        paymentMethods: {
+          pix: {
+            expirationDate: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutos de expiração
+          },
+        },
+      })
+
+      if (!checkoutResponse.pixQrCode || !checkoutResponse.paymentId) {
+        throw new Error("Erro ao gerar o QR Code do PIX")
       }
-  
-      try {
-        const checkoutResponse = await createMercadoPagoCheckout({
-          testeId: session?.user?.id ?? "",
-          userEmail: session?.user?.email ?? "",
-          items: selectServicesAPI.map((service) => ({
-            id: '1',
-            name: service.name,
-            description: `Serviço de ${service.name}`,
-            price: Number(service.price),
-          })),
-        })
-  
-        if (!checkoutResponse.initPoint) {
-          throw new Error("Erro ao iniciar o checkout")
-        }
-  
-        // Salvar o paymentId em localStorage ou em um estado global
-        localStorage.setItem("currentPaymentId", checkoutResponse.paymentId)
-  
-        // Redireciona para o checkout do Mercado Pago
-        router.push(checkoutResponse.initPoint)
-      } catch (mpError) {
-        console.error("Erro ao iniciar o checkout do Mercado Pago:", mpError)
-        toast({
-          title: "Erro no Pagamento",
-          description: "Não foi possível iniciar o processo de pagamento. Por favor, tente novamente.",
-          variant: "destructive",
-        })
-      }
-    } else {
-      // Lógica para pagamento local
-      console.log("Pagamento no local")
+
+      setPixQrCodeUrl(checkoutResponse.pixQrCode)
+      setPixPaymentId(checkoutResponse.paymentId)
+      setIsPixModalOpen(true)
+      closeDrawer()
+    } catch (error) {
+      console.error("Erro ao iniciar o checkout do Mercado Pago:", error)
+      toast({
+        title: "Erro no Pagamento",
+        description: "Não foi possível iniciar o processo de pagamento. Por favor, tente novamente.",
+        variant: "destructive",
+      })
     }
   }
-  
 
   return (
-    <DrawerContent>
-      <DrawerHeader>
-        <DrawerTitle>Selecione o Método de Pagamento</DrawerTitle>
-        <DrawerDescription>Escolha a forma de pagamento que você deseja utilizar.</DrawerDescription>
-      </DrawerHeader>
+    <>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Pagamento via PIX</DrawerTitle>
+          <DrawerDescription>Clique no botão abaixo para gerar um QR Code PIX para pagamento.</DrawerDescription>
+        </DrawerHeader>
 
-      <div className="p-4 space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {paymentMethods.map((method) => (
-            <Button
-              key={method.id}
-              variant={selectedPaymentMethod === method.id ? "default" : "outline"}
-              className={`h-24 flex flex-col items-center justify-center transition-all ${
-                selectedPaymentMethod === method.id ? "ring-2 ring-primary" : ""
-              }`}
-              onClick={() => setSelectedPaymentMethod(method.id)}
-            >
-              {method.icon}
-              <span className="mt-2 text-sm">{method.name}</span>
-            </Button>
-          ))}
+        <div className="p-4">
+          <Button
+            variant="default"
+            className="w-full"
+            onClick={handleConfirmPayment}
+          >
+            <Smartphone className="w-6 h-6 mr-2" />
+            Gerar QR Code PIX
+          </Button>
         </div>
+      </DrawerContent>
 
-        <Button
-          variant="default"
-          className="w-full mt-6"
-          onClick={handleConfirmPayment}
-          disabled={!selectedPaymentMethod}
-        >
-          Confirmar Pagamento
-        </Button>
-      </div>
-    </DrawerContent>
+      <PixModal
+        isOpen={isPixModalOpen}
+        onClose={() => setIsPixModalOpen(false)}
+        qrCodeUrl={pixQrCodeUrl}
+        paymentId={pixPaymentId}
+      />
+    </>
   )
 }

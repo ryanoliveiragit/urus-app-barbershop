@@ -39,7 +39,12 @@ export async function POST(req: NextRequest) {
         }),
         items: validItems,
         payment_methods: {
-          installments: 12,
+          excluded_payment_types: [
+            { id: "credit_card" },
+            { id: "debit_card" },
+            { id: "ticket" },
+            { id: "atm" },
+          ], // Exclui todas as formas que não são PIX
         },
         auto_return: "approved",
         back_urls: {
