@@ -116,7 +116,7 @@ export default function Home() {
           if (orders.length > 0) {
             const firstOrder = orders[0];
             try {
-              await axios.patch("http://localhost:5002/orders", {
+              await axios.patch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
                 id: firstOrder.id,
                 paymentId: paymentId,
                 userId: session.user.id,
