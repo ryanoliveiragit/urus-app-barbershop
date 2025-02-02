@@ -19,9 +19,9 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL(`?payment_id=${paymentId}`, request.url));
     }
 
-    return NextResponse.redirect(new URL("/pagamento/pendente", request.url));
+    return NextResponse.redirect(new URL(`?payment_id=${paymentId}`, request.url));
   } catch (error) {
     console.error("Erro ao buscar pagamento:", error);
-    return NextResponse.redirect(new URL("/pagamento/falha", request.url));
+    return NextResponse.redirect(new URL(`?payment_id=${paymentId}`, request.url));
   }
 }
