@@ -11,10 +11,10 @@ const fetcher = async (url: string) => {
   const response = await axios.get<Order[]>(url);
   return response.data;
 };
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 const useUserOrders = (userId: string) => {
   const { data, error, isLoading } = useSWR<Order[], Error>(
-    userId ? `http://localhost:5002/orders/user/${userId}` : null, // Evita chamadas desnecessárias
+    userId ? `${API_URL}/orders/user/${userId}` : null, // Evita chamadas desnecessárias
     fetcher
   );
 
