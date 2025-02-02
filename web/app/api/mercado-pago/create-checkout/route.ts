@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         },
         auto_return: "approved",
         back_urls: {
-          success: `${req.headers.get("origin")}/?status=sucesso`,
+          success: `${req.headers.get("origin")}/`,
           failure: `${req.headers.get("origin")}/?status=falha`,
           pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
         },
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!createdPreference.id) {
-      throw new Error("No preferenceID");
+      throw new Error("No preferenceId");
     }
 
     return NextResponse.json({
