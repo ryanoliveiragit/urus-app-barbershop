@@ -1,43 +1,36 @@
+
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
-const ASAAS_API_KEY = "$aact_MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjNmYjhjNGJhLTcxODgtNGQ5NC1hNzQ2LWI5NTgwZmI5YTc3ZTo6JGFhY2hfMTlmMWQyOTItYWJmNC00YjMxLWI2YzMtYjk1NzlhNGExNWFj";
-const ASAAS_API_URL = "https://www.asaas.com/api/v3/payments";
-
+const ASAAS_WEBHOOK_SECRET = "$aact_MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjNmYjhjNGJhLTcxODgtNGQ5NC1hNzQ2LWI5NTgwZmI5YTc3ZTo6JGFhY2hfMTlmMWQyOTItYWJmNC00YjMxLWI2YzMtYjk1NzlhNGExNWFj"; // Chave secreta do webhook (configurada no Asaas)
 
 export async function POST(req: NextRequest) {
-  const { name, value } = await req.json();
-
-  
   try {
-    const response = await fetch(ASAAS_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "access_token": ASAAS_API_KEY!,
-      },
-      body: JSON.stringify({
-        customer: {
-          name,
-          cpfCnpj: "47379575856", // Enviar CPF/CNPJ formatado
-        },
-        billingType: "PIX",
-        value,
-        dueDate: new Date().toISOString().split("T")[0],
-      }),
-    });
+    const body = await req.text();
+    const signature = req.headers.get("Asaas-Signature");
 
-    const data = await response.json();
+    // Validar a assinatura
+    const hash = crypto
+      .createHmac("sha256", ASAAS_WEBHOOK_SECRET)
+      .update(body)
+      .digest("hex");
 
-    if (!response.ok) {
-      throw new Error(data.errors ? JSON.stringify(data.errors) : "Erro na API");
+    if (hash !== signature) {
+      return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
     }
 
-    return NextResponse.json({
-      pixQrCode: data.invoiceUrl, // URL com QR Code PIX
-      pixCopyPaste: data.pixCopyPaste, // Código Copia e Cola
-    });
+    // Processar o evento
+    const event = JSON.parse(body);
+    console.log("Webhook recebido:", event);
+
+    if (event.event === "PAYMENT_RECEIVED") {
+      console.log("Pagamento recebido:", event.payment);
+      // Atualize o status do pagamento no seu banco de dados
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error("Erro ao criar cobrança PIX:", error);
-    return NextResponse.json({ error: "Erro ao criar pagamento" }, { status: 500 });
+    console.error("Erro ao processar webhook:", error);
+    return NextResponse.json({ error: "Erro ao processar webhook" }, { status: 500 });
   }
 }
