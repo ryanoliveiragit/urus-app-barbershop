@@ -27,7 +27,7 @@ export default function PixPayment() {
         body: JSON.stringify({
           name: "João Silva",
           cpfCnpj: formattedCpfCnpj, // CPF/CNPJ formatado
-          value: 100.0, // Valor em Reais
+          value: 1, // Valor em Reais
         }),
       });
   
