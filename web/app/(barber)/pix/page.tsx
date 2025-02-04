@@ -21,7 +21,7 @@ export default function PixPayment() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'asaas-access-token': `${process.env.ASAAS_WEBHOOK_SECRET}`,
+          'access-token': `${process.env.ASAAS_WEBHOOK_SECRET}`,
         },
         body: JSON.stringify(payload),
       });
