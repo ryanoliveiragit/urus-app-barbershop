@@ -1,89 +1,34 @@
-import { useEffect } from "react";
-import { initMercadoPago } from "@mercadopago/sdk-react";
-import { useRouter } from "next/navigation";
+import { NextResponse } from "next/server";
+import { Payment } from "mercadopago";
+import mpClient from "@/lib/mercado-pago";
 
-interface CheckoutData {
-  testeId: string;
-  userEmail: string | null;
-  items: {
-    id: string | boolean;
-    name: string | boolean;
-    description: string;
-    price: number;
-  }[];
-  paymentMethods: {
-    pix: {
-      expirationDate: string;
-    };
-  };
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const paymentId = searchParams.get("payment_id");
+
+  if (!paymentId) {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  try {
+    const payment = new Payment(mpClient);
+    const paymentData = await payment.get({ id: paymentId });
+
+    // URL base para redirecionamento
+    const baseUrl = "https://urus-app-barbershop-frontend.vercel.app";
+    const redirectUrl = `${baseUrl}?payment_id=${paymentId}`;
+
+    // Verifica se o pagamento foi aprovado
+    if (paymentData.status === "approved" || paymentData.date_approved !== null) {
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    // Caso o pagamento não esteja aprovado, redireciona de qualquer forma
+    return NextResponse.redirect(redirectUrl);
+  } catch (error) {
+    console.error("Erro ao buscar pagamento:", error);
+    const baseUrl = "https://urus-app-barbershop-frontend.vercel.app";
+    const redirectUrl = `${baseUrl}?payment_id=${paymentId}`;
+    return NextResponse.redirect(redirectUrl);
+  }
 }
-
-export const useMercadoPago = () => {
-  const router = useRouter();
-
-  useEffect(() => {
-    initMercadoPago(process.env.NEXT_PUBLIC_MERCADO_PAGO_PUBLIC_KEY!);
-  }, []);
-
-  async function createMercadoPagoCheckout(checkoutData: CheckoutData) {
-    try {
-      console.log("Iniciando checkout do Mercado Pago com os dados:", checkoutData);
-
-      const response = await fetch("/api/mercado-pago/create-checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(checkoutData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (!data || !data.initPoint || !data.preferenceId) {
-        throw new Error("Resposta da API inválida");
-      }
-
-      console.log("Redirecionando para:", data.initPoint);
-      router.push(data.initPoint);
-      startPolling(data.preferenceId);
-      return data.initPoint;
-    } catch (error) {
-      console.error("Erro durante o checkout do Mercado Pago:", error);
-      throw error;
-    }
-  }
-
-  async function checkPaymentStatus(preferenceId: string) {
-    try {
-      const response = await fetch(`/api/mercado-pago/payment-status?preferenceId=${preferenceId}`);
-      if (!response.ok) return null;
-
-      const data = await response.json();
-      return data.status;
-    } catch (error) {
-      console.error("Erro ao verificar status do pagamento:", error);
-      return null;
-    }
-  }
-
-  function startPolling(preferenceId: string) {
-    const interval = setInterval(async () => {
-      const status = await checkPaymentStatus(preferenceId);
-      console.log("Status do pagamento:", status);
-
-      if (status === "approved") {
-        clearInterval(interval);
-        // Redireciona para a URL base com o payment_id
-        const paymentId = preferenceId; // Ou obtenha o payment_id de outra forma
-        router.push(`/?payment_id=${paymentId}`);
-      }
-    }, 3000);
-  }
-
-  return { createMercadoPagoCheckout };
-};
-
-export default useMercadoPago;

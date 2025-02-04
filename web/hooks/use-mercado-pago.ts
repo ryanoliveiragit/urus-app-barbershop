@@ -76,7 +76,9 @@ export const useMercadoPago = () => {
 
       if (status === "approved") {
         clearInterval(interval);
-        router.push("/");
+        // Redireciona para a URL base com o payment_id
+        const paymentId = preferenceId; // Ou obtenha o payment_id de outra forma
+        router.push(`/?payment_id=${paymentId}`);
       }
     }, 3000);
   }
