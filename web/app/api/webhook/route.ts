@@ -7,8 +7,14 @@ export const POST = async (req: NextRequest) => {
     const rawBody = await req.text();
     const signature = req.headers.get('asaas-signature');
 
+    if (!signature) {
+      return new Response(JSON.stringify({ message: 'Signature missing' }), {
+        status: 401,
+      });
+    }
+
     // Verifica a assinatura do webhook
-    if (!signature || !verifyWebhookSignature(rawBody, signature)) {
+    if (!verifyWebhookSignature(rawBody, signature)) {
       return new Response(JSON.stringify({ message: 'Invalid signature' }), {
         status: 401,
       });
