@@ -1,28 +1,16 @@
 import { Request, Response } from 'express';
-import { WebhookPayload } from '../../types/webhook';
-import { WebhookService } from './services';
-
 
 export class WebhookController {
   static async handleWebhook(req: Request, res: Response) {
     try {
-      const body: WebhookPayload = req.body;
+      const body = req.body; // Recebe todo o objeto do webhook
+      
+      console.log('🔹 Webhook recebido:', JSON.stringify(body, null, 2)); // Exibe todo o objeto formatado
 
-      switch (body.event) {
-        case 'PAYMENT_CREATED':
-          WebhookService.createPayment(body.payment);
-          break;
-        case 'PAYMENT_RECEIVED':
-          WebhookService.receivePayment(body.payment);
-          break;
-        default:
-          WebhookService.handleUnknownEvent(body.event);
-      }
-
-      // Resposta de sucesso
-      res.status(200).json({ received: true });
+      // Responde que recebeu com sucesso
+      res.status(200).json({ received: true, data: body });
     } catch (error) {
-      console.error('Erro ao processar webhook:', error);
+      console.error('❌ Erro ao processar webhook:', error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   }
