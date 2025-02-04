@@ -1,35 +1,26 @@
-"use client"
-import React, { useEffect } from 'react';
+import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
-const PixPayment = () => {
+const socket = io(process.env.NEXT_PUBLIC_API_URL); // Troque pela URL real do seu backend
+
+export default function WebhookListener() {
+  const [webhookData, setWebhookData] = useState(null);
+
   useEffect(() => {
-    const eventSource = new EventSource('/api/pix'); // Endpoint SSE
-
-    eventSource.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-      console.log("Evento recebido do Webhook:", data);
-
-      if (data.event === "PAYMENT_RECEIVED") {
-        console.log("Pagamento recebido:", data.payment);
-        // Aqui você pode atualizar o estado ou exibir um alerta
-      }
-    };
-
-    eventSource.onerror = function (error) {
-      console.error("Erro no evento SSE:", error);
-    };
+    socket.on("webhookEvent", (data) => {
+      console.log("🔔 Novo webhook recebido:", data);
+      setWebhookData(data);
+    });
 
     return () => {
-      eventSource.close(); // Fechar a conexão quando o componente for desmontado
+      socket.off("webhookEvent"); // Remove o listener ao desmontar o componente
     };
   }, []);
 
   return (
     <div>
-      <h1>Pagamento via PIX</h1>
-      <p>Verifique o console para os eventos recebidos do webhook.</p>
+      <h2>Webhook Data:</h2>
+      <pre>{JSON.stringify(webhookData, null, 2)}</pre>
     </div>
   );
-};
-
-export default PixPayment;
+}
