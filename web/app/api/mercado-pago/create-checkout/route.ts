@@ -1,68 +1,70 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Preference } from "mercadopago";
 import mpClient from "@/lib/mercado-pago";
 
 export async function POST(req: NextRequest) {
-  const requestBody = await req.json();
-  const { testeId, userEmail, items } = requestBody;
+  const { testeId, userEmail } = await req.json();
 
   try {
     const preference = new Preference(mpClient);
 
-    const validItems = items.map(
-      (
-        item: { name: string; description: string; price: number },
-        index: number
-      ) => {
-        return {
-          id: index.toString(),
-          title: item.name,
-          description: item.description,
-          quantity: 1,
-          unit_price: item.price,
-          currency_id: "BRL",
-          category_id: "service",
-        };
-      }
-    );
-
     const createdPreference = await preference.create({
       body: {
-        external_reference: testeId,
+        external_reference: testeId, // IMPORTANTE: Isso aumenta a pontuação da sua integração com o Mercado Pago - É o id da compra no nosso sistema
         metadata: {
-          testeId,
+          testeId, // O Mercado Pago converte para snake_case, ou seja, testeId vai virar teste_id
+          // userEmail: userEmail,
+          // plan: '123'
+          //etc
         },
         ...(userEmail && {
           payer: {
             email: userEmail,
           },
         }),
-        items: validItems,
+
+        items: [
+          {
+            id: "id-do-seu-produto",
+            description: "Descrição do produto",
+            title: "Nome do produto",
+            quantity: 1,
+            unit_price: 1,
+            currency_id: "BRL",
+            category_id: "category", // Recomendado inserir, mesmo que não tenha categoria - Aumenta a pontuação da sua integração com o Mercado Pago
+          },
+        ],
         payment_methods: {
-          excluded_payment_types: [
-            { id: "credit_card" },
-            { id: "debit_card" },
-            { id: "ticket" },
-            { id: "atm" },
-          ], // Exclui todas as formas que não são PIX
+          // Descomente para desativar métodos de pagamento
+          //   excluded_payment_methods: [
+          //     {
+          //       id: "bolbradesco",
+          //     },
+          //     {
+          //       id: "pec",
+          //     },
+          //   ],
+          //   excluded_payment_types: [
+          //     {
+          //       id: "debit_card",
+          //     },
+          //     {
+          //       id: "credit_card",
+          //     },
+          //   ],
+          installments: 12, // Número máximo de parcelas permitidas - calculo feito automaticamente
         },
         auto_return: "approved",
         back_urls: {
-          success: `${req.headers.get("origin")}/`,
+          success: `${req.headers.get("origin")}/?status=sucesso`,
           failure: `${req.headers.get("origin")}/?status=falha`,
-          pending: `${req.headers.get("origin")}/api/mercado-pago/pending`,
+          pending: `${req.headers.get("origin")}/api/mercado-pago/pending`, // Criamos uma rota para lidar com pagamentos pendentes
         },
-        notification_url: `${req.headers.get("origin")}/api/mercado-pago/webhook`,
       },
     });
 
-    console.log(
-      "Preferência criada:",
-      JSON.stringify(createdPreference, null, 2)
-    );
-
     if (!createdPreference.id) {
-      throw new Error("No preferenceId");
+      throw new Error("No preferenceID");
     }
 
     return NextResponse.json({
@@ -70,7 +72,7 @@ export async function POST(req: NextRequest) {
       initPoint: createdPreference.init_point,
     });
   } catch (err) {
-    console.error("Erro ao criar a preferência:", err);
+    console.error(err);
     return NextResponse.error();
   }
 }
