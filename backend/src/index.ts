@@ -7,6 +7,7 @@ import servicesRoutes from "./routes/servicesRoutes";
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import paymentOrderRoutes from "./routes/paymentOrderRoutes";
+import webhookRoutes from "./routes/webhook";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/subscription", subscriptionsRoutes);
 app.use("/commodity", commoditiesRoutes);
 app.use("/auth", authRoutes);
 app.use("/orders", paymentOrderRoutes);
+app.use("/webhook", webhookRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
