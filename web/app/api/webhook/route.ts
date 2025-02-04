@@ -1,55 +1,39 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest } from 'next/server';
 import crypto from 'crypto';
 
-export const config = {
-  api: {
-    bodyParser: false, // Desativa o bodyParser para capturar o raw body
-  },
-};
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-
+export const POST = async (req: NextRequest) => {
   try {
-    // Obtém o raw body
-    const rawBody = await getRawBody(req);
-    const signature = req.headers['asaas-signature'] as string | undefined;
+    // Obtém o raw body manualmente
+    const rawBody = await req.text();
+    const signature = req.headers.get('asaas-signature');
 
     // Verifica a assinatura do webhook
     if (!signature || !verifyWebhookSignature(rawBody, signature)) {
-      return res.status(401).json({ message: 'Invalid signature' });
+      return new Response(JSON.stringify({ message: 'Invalid signature' }), {
+        status: 401,
+      });
     }
 
     // Converte o raw body para JSON
-    const event = JSON.parse(rawBody.toString());
-
-    // Obtém o status do pagamento
+    const event = JSON.parse(rawBody);
     const paymentStatus: string = event?.status || 'Status não encontrado';
 
     console.log('Status do pagamento:', paymentStatus);
 
-    res.status(200).json({ paymentStatus });
+    return new Response(JSON.stringify({ paymentStatus }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Erro no webhook:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+    });
   }
-}
-
-// Função para obter o raw body da requisição
-async function getRawBody(req: NextApiRequest): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    req.on('data', (chunk) => chunks.push(chunk));
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', (err) => reject(err));
-  });
-}
+};
 
 // Função para verificar a assinatura do webhook
-function verifyWebhookSignature(rawBody: Buffer, signature: string): boolean {
+function verifyWebhookSignature(rawBody: string, signature: string): boolean {
   const secret = process.env.ASAAS_WEBHOOK_SECRET || '';
   const hmac = crypto.createHmac('sha256', secret);
   hmac.update(rawBody);
