@@ -2,13 +2,58 @@
 import React, { useState } from 'react';
 
 export default function PixPayment() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [pixQrCode, _] = useState<string | null>("iVBORw0KGgoAAAANSUhEUgAAAcIAAAHCAQAAAABUY/ToAAADjklEQVR4Xu2WQW7cQAwEdZv//yjP0s3ZquZIcoBgDedgBuBoJXGaXZ3DcNc5Pr65fh1/Kl9dQ75bQ75b/0Seh2t9fJzr5ElN+boOP0uJvt24h+xKImIFwEpD8SRhEzSNjHvIviRSLIceidteUcm53EM2J52EkAcJ5pjFszr6hvwfyDRS6q0J+GCVtnOH7EymZeNy1VRgqtCrEcuQXUlO3NP90lXuIf96/TB5L8/9sXE+mJBrKB7mIZuSnq0njAlGpPR8x0+qxBm2huxLArhPhMx+JJEkTM/gIbuSSPbT0RbSQoMFmuH4huxKosNFCXTnmJCGMds4ZFOymtq0Lvbi5pVhd7Y4ZFPSKQBVrhAFvRdJu4YGdMi2pHpahUoYGfwQMNzOqkkYsh+JY5s8YzfG1UToBdqjMWRzEqfIfsdaewUX2wodsinp0W7GukC3geg/U876P9iQ/UgaOuKt4krgfQBa+z23P2RTsqrwixfPvOiZpOWTYciu5KFDd/qcPUUGwCHZfTKiDtmU1Bqjq9xIO3HHxWb6kH3JQopZ+9rgWZPyWR2yKfk6Ws7dm+vAQ96q1qXXw6wh25J2Nbxuv8Xequ5jRywn+pBNSRXM2CxNyDbwVcfiPWRXEu8LKFedeGkIBBlGQpyrfuOHbEjqiR/PwipZGs7NqNkasisZJI6agxy7AVtJT6P1kE3J08PPIdeRV4WDDbtHPu39N3vInmQa3hjtl2UzqRKx7kkYshmZ1goKlWVemV1Atz5kW9Ime/jQ7pVMjKHi+QzZmKx+KHhBzJWEATlk2kP2JcsRmYI6dl7Ctdn/zv5NGLIdeeZkVcSDxU5WJfm5yiG7kvt474ds8PCFuOFNMWRnkq5f65cqWnXCNpx21CHbkkoLj/dRp5+MK9XaFB1DdiXPS90VraJAYn4E0BmyK2mDfgVIpJ2MY4MVhXnI3qQGSyq2vnGlnfwKOfcv9ZDtSEokvOIKWh8fEx7VkF1J3TzrtXM27zTEcJVDNiat/LZmGFbVtxONMENLG7Iv6cIdE1f6yXBWAt3JQzYlIx3l4VVGAxKn5DOG5SQM2ZK0Ge7AK5Sk8DQh2OkcsjWZPpdwbtRESAlkZpCH7E+WxO4SSaFeTks6GZshu5MYaWOEkU+goRoSc+Yv75AtSU85XNB6qB51+pmJTAH3kF3JfdBFkPFqsU1ctEyHPlOHbEp+cw35bg35bv0I+RtXuK05KKHCjgAAAABJRU5ErkJggg==");
+  const [pixQrCode, setPixQrCode] = useState<string | null>(null);
+  const [pixKey] = useState<string>('3dfecdd0-8598-4b93-bff7-e9a9ca252ced');
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const generatePixQrCode = async () => {
+    setLoading(true);
+
+    const payload = {
+      addressKey: "3dfecdd0-8598-4b93-bff7-e9a9ca252ced",
+      description: "teste",
+      value: 1,
+    };
+
+    try {
+      // Faz a chamada à API da Asaas para gerar o QR Code PIX
+      const response = await fetch('https://api.asaas.com/v3/pix/qrCodes/static', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'access_token': `${process.env.ASAAS_WEBHOOK_SECRET}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao gerar QR Code PIX');
+      }
+
+      const data = await response.json();
+      setPixQrCode(data.encodedImage); // Supondo que a API retorne o QR Code em base64
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro ao gerar QR Code PIX');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyPixKey = () => {
+    navigator.clipboard.writeText(pixKey).then(() => {
+      alert('Chave PIX copiada com sucesso!');
+    });
+  };
 
   return (
     <div className="p-4">
-      <button className="bg-blue-500 text-white p-2 rounded">
-        Gerar QR Code PIX
+      <button
+        onClick={generatePixQrCode}
+        className="bg-blue-500 text-white p-2 rounded"
+        disabled={loading}
+      >
+        {loading ? 'Gerando QR Code...' : 'Gerar QR Code PIX'}
       </button>
 
       <div className="mt-4">
@@ -20,13 +65,26 @@ export default function PixPayment() {
             className="w-full max-w-xs"
           />
         ) : (
-          <p>Carregando QR Code...</p>
+          <p>Nenhum QR Code gerado ainda.</p>
         )}
       </div>
 
       <div className="mt-4">
         <p>Ou copie e cole a chave PIX:</p>
-
+        <div className="flex items-center">
+          <input
+            type="text"
+            value={pixKey}
+            readOnly
+            className="border p-2 rounded-l flex-grow"
+          />
+          <button
+            onClick={copyPixKey}
+            className="bg-green-500 text-white p-2 rounded-r"
+          >
+            Copiar
+          </button>
+        </div>
       </div>
     </div>
   );
