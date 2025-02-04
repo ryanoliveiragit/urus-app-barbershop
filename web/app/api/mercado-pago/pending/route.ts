@@ -16,12 +16,12 @@ export async function GET(request: Request) {
     const paymentData = await payment.get({ id: paymentId });
 
     if (paymentData.status === "approved" || paymentData.date_approved !== null) {
-      return NextResponse.redirect(new URL(`?payment_id=${paymentId}`, request.url));
+      return NextResponse.redirect(`/?=${paymentId}`);
     }
 
-    return NextResponse.redirect(new URL(`?payment_id=${paymentId}`, request.url));
+    return NextResponse.redirect(new URL(`?=${paymentId}`, request.url));
   } catch (error) {
     console.error("Erro ao buscar pagamento:", error);
-    return NextResponse.redirect(new URL(`?payment_id=${paymentId}`, request.url));
+    return NextResponse.redirect(new URL(`?=${paymentId}`, request.url));
   }
 }
