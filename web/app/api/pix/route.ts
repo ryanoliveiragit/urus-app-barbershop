@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
-const ASAAS_WEBHOOK_SECRET = "$aact_MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjNmYjhjNGJhLTcxODgtNGQ5NC1hNzQ2LWI5NTgwZmI5YTc3ZTo6JGFhY2hfMTlmMWQyOTItYWJmNC00YjMxLWI2YzMtYjk1NzlhNGExNWFj"; // Use a mesma chave configurada no Asaas
+const ASAAS_WEBHOOK_SECRET = "$aact_MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmU5YWNhYjY5LWRkMzYtNDNjZS04N2VlLTUxMjZlZjIxZjI1ZDo6JGFhY2hfMWJlODBiMTItMWRhMi00ZjA5LTliYzctMzQ0NjM2ZjQyZmFi";
 
 export async function POST(req: NextRequest) {
   try {
-    // Ler o corpo da requisição como texto
     const body = await req.text();
     const signature = req.headers.get("Asaas-Signature");
 
@@ -13,24 +12,34 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Assinatura não encontrada" }, { status: 401 });
     }
 
-    // Gerar o HMAC-SHA256
     const hash = crypto
       .createHmac("sha256", ASAAS_WEBHOOK_SECRET)
       .update(body)
       .digest("hex");
 
-    // Comparar o hash gerado com a assinatura
     if (hash !== signature) {
       return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
     }
 
-    // Se a assinatura for válida, processar o evento
     const event = JSON.parse(body);
     console.log("Webhook recebido:", event);
 
+    // Criação do evento para ser enviado via SSE
     if (event.event === "PAYMENT_RECEIVED") {
       console.log("Pagamento recebido:", event.payment);
-      // Atualize o status do pagamento no seu banco de dados
+      // Enviar evento para o frontend
+      const sseEvent = `data: ${JSON.stringify(event)}\n\n`;
+
+      // Você precisa configurar um endpoint SSE para enviar esse dado
+      // Exemplo de resposta SSE
+      return new NextResponse(sseEvent, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        },
+      });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
