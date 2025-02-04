@@ -9,21 +9,10 @@ export default function PixPayment() {
   const generatePixQrCode = async () => {
     setLoading(true);
 
-    const payload = {
-      addressKey: "3dfecdd0-8598-4b93-bff7-e9a9ca252ced",
-      description: "teste",
-      value: 1,
-    };
-
     try {
-      // Faz a chamada à API da Asaas para gerar o QR Code PIX
-      const response = await fetch('https://api.asaas.com/v3/pix/qrCodes/static', {
+      // Faz a chamada à rota de API do Next.js
+      const response = await fetch('/api/pix', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'access-token': `${process.env.ASAAS_WEBHOOK_SECRET}`,
-        },
-        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -31,7 +20,7 @@ export default function PixPayment() {
       }
 
       const data = await response.json();
-      setPixQrCode(data.encodedImage); // Supondo que a API retorne o QR Code em base64
+      setPixQrCode(data.qrCode); // Recebe o QR Code em base64 da API
     } catch (error) {
       console.error('Erro:', error);
       alert('Erro ao gerar QR Code PIX');
