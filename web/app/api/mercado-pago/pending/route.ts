@@ -15,13 +15,18 @@ export async function GET(request: Request) {
     const payment = new Payment(mpClient);
     const paymentData = await payment.get({ id: paymentId });
 
+    const baseUrl = "https://urus-app-barbershop-frontend.vercel.app";
+    const redirectUrl = `${baseUrl}?payment_id=${paymentId}`;
+
     if (paymentData.status === "approved" || paymentData.date_approved !== null) {
-      return NextResponse.redirect(`/?=${paymentId}`);
+      return NextResponse.redirect(redirectUrl);
     }
 
-    return NextResponse.redirect(new URL(`?=${paymentId}`, request.url));
+    return NextResponse.redirect(redirectUrl);
   } catch (error) {
     console.error("Erro ao buscar pagamento:", error);
-    return NextResponse.redirect(new URL(`?=${paymentId}`, request.url));
+    const baseUrl = "https://urus-app-barbershop-frontend.vercel.app";
+    const redirectUrl = `${baseUrl}?payment_id=${paymentId}`;
+    return NextResponse.redirect(redirectUrl);
   }
 }
