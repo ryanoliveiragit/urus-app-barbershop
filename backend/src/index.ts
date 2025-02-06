@@ -23,6 +23,7 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     console.log("📩 Mensagem recebida:", message.toString());
+    ws.send("📬 Mensagem recebida com sucesso!" + message);
   });
 
   ws.on("close", () => {

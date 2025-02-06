@@ -6,17 +6,19 @@ export default function PixPayment() {
   const [pixQrCode, setPixQrCode] = useState<string | null>(null);
   const [pixKey] = useState<string>("3dfecdd0-8598-4b93-bff7-e9a9ca252ced");
   const [loading, setLoading] = useState<boolean>(false);
+  const [ws, setWS] = useState<WebSocket | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     const socket = new WebSocket("wss://urus-app-barbershop.onrender.com");
-
+    setWS(socket);
     socket.onopen = () => {
       console.log("✅ Conectado ao WebSocket");
     };
 
     socket.onmessage = (event) => {
-      console.log('Message Received')
+      console.log('Message Received', event.data)
+      console.log("📩 ws:", ws);
 
       try {
         const data = JSON.parse(event.data);
@@ -37,7 +39,7 @@ export default function PixPayment() {
     return () => {
       socket.close();
     };
-  }, [router]);
+  }, []);
 
   const generatePixQrCode = async () => {
     setLoading(true);
