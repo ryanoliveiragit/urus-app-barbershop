@@ -16,6 +16,8 @@ export default function PixPayment() {
     };
 
     socket.onmessage = (event) => {
+      console.log('Message Received')
+
       try {
         const data = JSON.parse(event.data);
         console.log("🚀 Pagamento recebido:", data);
