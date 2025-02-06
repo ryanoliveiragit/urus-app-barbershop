@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import http from "http";
-import { Server } from "socket.io";
+import { WebSocketServer } from "ws";
 import agendamentRoutes from "./routes/agendamentRoutes";
 import subscriptionsRoutes from "./routes/subscriptionsRoutes";
 import commoditiesRoutes from "./routes/commoditiesRoutes";
@@ -10,18 +10,28 @@ import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import paymentOrderRoutes from "./routes/paymentOrderRoutes";
 import webhookRoutes from "./routes/webhook";
-
+import { WebhookController } from "./resources/webhook/controller";
 const app = express();
-const server = http.createServer(app); // Criando um servidor HTTP
-const io = new Server(server, {
-  cors: { origin: "*" }, // Permite conexões de qualquer origem
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+
+// Configura o WebSocket no Controller
+WebhookController.setWebSocketServer(wss);
+
+wss.on("connection", (ws) => {
+  console.log("⚡ Novo cliente WebSocket conectado!");
+
+  ws.on("message", (message) => {
+    console.log("📩 Mensagem recebida:", message.toString());
+  });
+
+  ws.on("close", () => {
+    console.log("❌ Cliente WebSocket desconectado.");
+  });
 });
 
 app.use(cors());
 app.use(express.json());
-
-// Expor `io` para ser usado nos controllers
-export { io };
 
 app.use("/user", userRoutes);
 app.use("/services", servicesRoutes);

@@ -1,51 +1,58 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { io } from 'socket.io-client';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PixPayment() {
   const [pixQrCode, setPixQrCode] = useState<string | null>(null);
-  const [pixKey] = useState<string>('3dfecdd0-8598-4b93-bff7-e9a9ca252ced');
+  const [pixKey] = useState<string>("3dfecdd0-8598-4b93-bff7-e9a9ca252ced");
   const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Conecta ao WebSocket
-    const socket = io();
+    const socket = new WebSocket("wss://urus-app-barbershop.onrender.com");
 
-    // Escuta o evento de pagamento recebido
-    socket.on('webhookEvent', (data) => {
-      console.log("🚀 Pagamento recebido:", data);
+    socket.onopen = () => {
+      console.log("✅ Conectado ao WebSocket");
+    };
 
-      // Verifica se o pagamento foi recebido
-      if (data.event === "PAYMENT_RECEIVED") {
-        // Redireciona para a página de sucesso
-        router.push('/pagamento-sucesso');
+    socket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log("🚀 Pagamento recebido:", data);
+
+        if (data.event === "PAYMENT_RECEIVED") {
+          router.push("/pagamento-sucesso");
+        }
+      } catch (error) {
+        console.error("Erro ao processar mensagem WebSocket:", error);
       }
-    });
+    };
 
-    // Cleanup para desconectar o WebSocket ao sair do componente
+    socket.onclose = () => {
+      console.log("❌ Conexão WebSocket fechada.");
+    };
+
     return () => {
-      socket.disconnect();
+      socket.close();
     };
   }, [router]);
 
   const generatePixQrCode = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/pix', {
-        method: 'POST',
+      const response = await fetch("/api/pix", {
+        method: "POST",
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao gerar QR Code PIX');
+        throw new Error("Erro ao gerar QR Code PIX");
       }
 
       const data = await response.json();
       setPixQrCode(data.qrCode);
     } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro ao gerar QR Code PIX');
+      console.error("Erro:", error);
+      alert("Erro ao gerar QR Code PIX");
     } finally {
       setLoading(false);
     }
@@ -53,7 +60,7 @@ export default function PixPayment() {
 
   const copyPixKey = () => {
     navigator.clipboard.writeText(pixKey).then(() => {
-      alert('Chave PIX copiada com sucesso!');
+      alert("Chave PIX copiada com sucesso!");
     });
   };
 
@@ -64,7 +71,7 @@ export default function PixPayment() {
         className="bg-blue-500 text-white p-2 rounded"
         disabled={loading}
       >
-        {loading ? 'Gerando QR Code...' : 'Gerar QR Code PIX'}
+        {loading ? "Gerando QR Code..." : "Gerar QR Code PIX"}
       </button>
 
       <div className="mt-4">
