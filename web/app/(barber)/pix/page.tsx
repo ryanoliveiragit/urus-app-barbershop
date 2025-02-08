@@ -1,45 +1,31 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import io from "socket.io-client";
 
 export default function PixPayment() {
   const [pixQrCode, setPixQrCode] = useState<string | null>(null);
   const [pixKey] = useState<string>("3dfecdd0-8598-4b93-bff7-e9a9ca252ced");
   const [loading, setLoading] = useState<boolean>(false);
-  const [ws, setWS] = useState<WebSocket | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setSocket] = useState<unknown>(null); // Socket.IO client instance
   const router = useRouter();
 
   useEffect(() => {
-    const socket = new WebSocket("wss://urus-app-barbershop.onrender.com");
-    setWS(socket);
-    socket.onopen = () => {
-      console.log("✅ Conectado ao WebSocket");
-    };
+    // Conecta ao servidor Socket.IO
+    const socket = io("https://urus-app-barbershop.onrender.com"); // Substitua pela URL correta do seu servidor
+    setSocket(socket);
 
-    socket.onmessage = (event) => {
-      console.log('Message Received', event.data)
-      console.log("📩 ws:", ws);
-
-      try {
-        const data = JSON.parse(event.data);
-        console.log("🚀 Pagamento recebido:", data);
-
-        if (data.event === "PAYMENT_RECEIVED") {
-          router.push("/pagamento-sucesso");
-        }
-      } catch (error) {
-        console.error("Erro ao processar mensagem WebSocket:", error);
-      }
-    };
-
-    socket.onclose = () => {
-      console.log("❌ Conexão WebSocket fechada.");
-    };
+    // Escuta as mensagens do servidor
+    socket.on("payment_received", (data: { transactionId: string; amount: number }) => {
+      console.log("🚀 Pagamento recebido:", data);
+      router.push("/pagamento-sucesso");
+    });
 
     return () => {
-      socket.close();
+      socket.disconnect(); // Desconecta o socket quando o componente for desmontado
     };
-  }, []);
+  }, [router]);
 
   const generatePixQrCode = async () => {
     setLoading(true);
