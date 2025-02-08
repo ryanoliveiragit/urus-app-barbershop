@@ -4,8 +4,9 @@ import { WebSocketServer, WebSocket } from "ws";
 export class WebhookController {
   private static wss: WebSocketServer | null = null;
 
+  // Método para configurar o WebSocket Server
   static setWebSocketServer(wssInstance: WebSocketServer) {
-    this.wss = wssInstance;
+    WebhookController.wss = wssInstance;
   }
 
   static async handleWebhook(req: Request, res: Response): Promise<void> {
@@ -20,8 +21,8 @@ export class WebhookController {
 
       console.log("🔹 Webhook recebido:", JSON.stringify(body, null, 2));
 
-      if (this.wss) {
-        this.wss.clients.forEach((client: WebSocket) => {
+      if (WebhookController.wss) {
+        WebhookController.wss.clients.forEach((client: WebSocket) => {
           if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({ event: "webhookEvent", data: body }));
           }

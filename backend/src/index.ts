@@ -2,20 +2,14 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { WebSocketServer } from "ws";
-import agendamentRoutes from "./routes/agendamentRoutes";
-import subscriptionsRoutes from "./routes/subscriptionsRoutes";
-import commoditiesRoutes from "./routes/commoditiesRoutes";
-import servicesRoutes from "./routes/servicesRoutes";
-import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
-import paymentOrderRoutes from "./routes/paymentOrderRoutes";
 import webhookRoutes from "./routes/webhook";
 import { WebhookController } from "./resources/webhook/controller";
+
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
-// Configura o WebSocket no Controller
+// ⚡ Define o WebSocket no Controller ANTES de usar as rotas
 WebhookController.setWebSocketServer(wss);
 
 wss.on("connection", (ws) => {
@@ -34,13 +28,7 @@ wss.on("connection", (ws) => {
 app.use(cors());
 app.use(express.json());
 
-app.use("/user", userRoutes);
-app.use("/services", servicesRoutes);
-app.use("/agendament", agendamentRoutes);
-app.use("/subscription", subscriptionsRoutes);
-app.use("/commodity", commoditiesRoutes);
-app.use("/auth", authRoutes);
-app.use("/orders", paymentOrderRoutes);
+// ⚡ Registre as rotas DEPOIS de configurar o WebSocket
 app.use("/webhook", webhookRoutes);
 
 const PORT = process.env.PORT || 3000;
