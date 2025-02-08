@@ -25,6 +25,7 @@ wss.on("connection", (ws) => {
     console.log("⚡ Novo cliente WebSocket conectado!");
     ws.on("message", (message) => {
         console.log("📩 Mensagem recebida:", message.toString());
+        ws.send("📬 Mensagem recebida com sucesso!" + message);
     });
     ws.on("close", () => {
         console.log("❌ Cliente WebSocket desconectado.");
