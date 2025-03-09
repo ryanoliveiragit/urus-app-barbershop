@@ -1,99 +1,94 @@
 "use client"
-import { useState } from "react"
-import { DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import { DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerFooter } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { Smartphone } from 'lucide-react'
-import useMercadoPago from "@/hooks/use-mercado-pago"
-import { useSession } from "next-auth/react"
+import { MapPin } from 'lucide-react'
 import { useToast } from "@/hooks/use-toast"
 import { Service } from "@/app/page"
-import { PixModal } from "./pix-modal"
-
 
 interface SelectPaymentMethodProps {
   closeDrawer: () => void
   selectServicesAPI: Service[]
+  onSelectMethod: (method: string) => void
 }
 
-export const SelectPaymentMethod = ({ selectServicesAPI, closeDrawer }: SelectPaymentMethodProps) => {
-  const [isPixModalOpen, setIsPixModalOpen] = useState(false)
-  const [pixQrCodeUrl, setPixQrCodeUrl] = useState("")
-  const [pixPaymentId, setPixPaymentId] = useState("")
-  const { createMercadoPagoCheckout } = useMercadoPago()
-  const { data: session } = useSession()
+export const SelectPaymentMethod = ({ 
+  selectServicesAPI, 
+  closeDrawer,
+  onSelectMethod 
+}: SelectPaymentMethodProps) => {
   const { toast } = useToast()
 
-  const handleConfirmPayment = async () => {
-    if (!Array.isArray(selectServicesAPI) || selectServicesAPI.length === 0) {
+  const handlePaymentInPerson = () => {
+    if (!Array.isArray(selectServicesAPI) || selectServicesAPI.length === 0 || !selectServicesAPI[0].id) {
       toast({
-        title: "Erro no pagamento",
-        description: "Nenhum serviço selecionado para o pagamento.",
+        title: "Erro no agendamento",
+        description: "Nenhum serviço selecionado para o agendamento.",
         variant: "destructive",
       })
       return
     }
 
-    try {
-      const checkoutResponse = await createMercadoPagoCheckout({
-        testeId: session?.user?.id ?? "",
-        userEmail: session?.user?.email ?? "",
-        items: selectServicesAPI.map((service) => ({
-          id: "1",
-          name: service.name,
-          description: `Serviço de ${service.name}`,
-          price: Number(service.price),
-        })),
-        paymentMethods: {
-          pix: {
-            expirationDate: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutos de expiração
-          },
-        },
-      })
-
-      if (!checkoutResponse.pixQrCode || !checkoutResponse.paymentId) {
-        throw new Error("Erro ao gerar o QR Code do PIX")
-      }
-
-      setPixQrCodeUrl(checkoutResponse.pixQrCode)
-      setPixPaymentId(checkoutResponse.paymentId)
-      setIsPixModalOpen(true)
-      closeDrawer()
-    } catch (error) {
-      console.error("Erro ao iniciar o checkout do Mercado Pago:", error)
-      toast({
-        title: "Erro no Pagamento",
-        description: "Não foi possível iniciar o processo de pagamento. Por favor, tente novamente.",
-        variant: "destructive",
-      })
-    }
+    // Notificar o componente pai sobre o método de pagamento selecionado
+    onSelectMethod("Pagamento no local")
+    closeDrawer()
   }
 
+  const totalAmount = Array.isArray(selectServicesAPI) && selectServicesAPI.length > 0
+    ? selectServicesAPI.reduce((total, service) => total + (parseFloat(service.price as string) || 0), 0)
+    : 0
+
   return (
-    <>
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerTitle>Pagamento via PIX</DrawerTitle>
-          <DrawerDescription>Clique no botão abaixo para gerar um QR Code PIX para pagamento.</DrawerDescription>
-        </DrawerHeader>
+    <DrawerContent className="bg-[#1c1c1c] text-white">
+      <DrawerHeader className="border-b border-gray-800">
+        <DrawerTitle className="text-white">Método de Pagamento</DrawerTitle>
+        <DrawerDescription className="text-gray-400">
+          O pagamento será realizado no local
+        </DrawerDescription>
+      </DrawerHeader>
 
-        <div className="p-4">
-          <Button
-            variant="default"
-            className="w-full"
-            onClick={handleConfirmPayment}
-          >
-            <Smartphone className="w-6 h-6 mr-2" />
-            Gerar QR Code PIX
-          </Button>
+      <div className="px-4 py-6">
+        {totalAmount > 0 && (
+          <div className="mb-6 text-center">
+            <p className="text-sm text-gray-400">Valor total</p>
+            <p className="text-2xl font-bold text-yellow-500">
+              {totalAmount.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+              })}
+            </p>
+          </div>
+        )}
+
+        <div className="border border-gray-800 rounded-md p-5 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-yellow-500/20 p-3 rounded-full">
+              <MapPin className="h-6 w-6 text-yellow-500" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white">Pagamento no local</h3>
+              <p className="text-sm text-gray-400 mt-1">
+                Realize o pagamento diretamente na barbearia
+              </p>
+            </div>
+          </div>
         </div>
-      </DrawerContent>
+        
+        <p className="text-sm text-gray-400 text-center mb-4">
+          Outros métodos de pagamento estarão disponíveis em breve
+        </p>
+      </div>
 
-      <PixModal
-        isOpen={isPixModalOpen}
-        onClose={() => setIsPixModalOpen(false)}
-        qrCodeUrl={pixQrCodeUrl}
-        paymentId={pixPaymentId}
-      />
-    </>
+      <DrawerFooter className="border-t border-gray-800 pt-4">
+        <Button 
+          onClick={handlePaymentInPerson}
+          className="w-full font-medium bg-gray-800 hover:bg-gray-700 text-white"
+        >
+          Confirmar Pagamento no Local
+        </Button>
+        <Button variant="outline" onClick={closeDrawer} className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white">
+          Cancelar
+        </Button>
+      </DrawerFooter>
+    </DrawerContent>
   )
 }

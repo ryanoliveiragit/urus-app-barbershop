@@ -1,26 +1,43 @@
-import { Server } from "socket.io";
-import { Request, Response } from "express";
+// resources/webhook/controller.ts
+import { Server } from 'socket.io';
 
-class WebhookController {
-  private static io: Server;
-
-  static setWebSocketServer(io: Server) {
-    this.io = io;
-  }
-
-  static handleWebhook(req: Request, res: Response) {
-    try {
-      console.log("📩 Webhook recebido:", req.body);
-
-      // Envia o evento para os clientes WebSocket conectados
-      this.io.emit("webhookEvent", req.body);
-
-      res.status(200).json({ received: true });
-    } catch (error) {
-      console.error("❌ Erro ao processar webhook:", error);
-      res.status(500).json({ error: "Erro ao processar webhook" });
-    }
-  }
+interface PaymentInfo {
+  id: string;
+  externalId: string;
+  amount: number;
+  description: string;
+  customerId: string;
+  status: string;
+  qrCode?: string;
+  qrCodeBase64?: string;
+  createdAt: Date;
 }
 
-export { WebhookController };
+export class WebhookController {
+  private static webSocketServer: Server | null = null;
+
+  static setWebSocketServer(io: Server): void {
+    WebhookController.webSocketServer = io;
+  }
+
+  // Método para notificar pagamentos PIX aprovados
+  static notifyPaymentApproved(paymentInfo: PaymentInfo): void {
+    if (WebhookController.webSocketServer) {
+      // Emite o evento para todos os clientes conectados
+      WebhookController.webSocketServer.emit('payment_approved', {
+        paymentId: paymentInfo.id,
+        amount: paymentInfo.amount,
+        description: paymentInfo.description,
+        status: 'approved',
+        timestamp: new Date()
+      });
+
+      console.log(`✅ Notificação de pagamento aprovado enviada para o paymentId: ${paymentInfo.id}`);
+    } else {
+      console.error('❌ WebSocket server não configurado!');
+    }
+  }
+
+  // Outros métodos do seu WebhookController
+  // ...
+}
