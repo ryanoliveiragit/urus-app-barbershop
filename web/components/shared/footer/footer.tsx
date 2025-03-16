@@ -11,7 +11,18 @@ export const Footer = () => {
   const pathname = usePathname();
   
   // Função para verificar se uma rota está ativa
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => {
+    // Para a página de agendamentos, verificamos o caminho principal e subpáginas
+    if (path === "/") {
+      return pathname === "/" || 
+             pathname === "/agendamentos" || 
+             pathname.startsWith("/agendamentos/");
+    }
+    return pathname === path;
+  };
+
+  // Verificar se está na seção de agendamentos (página principal ou subpáginas)
+  const isAgendamentosSection = isActive("/");
 
   return (
     <footer className="mt-auto p-3.5 justify-between bg-zinc-900 flex w-full items-center">
@@ -51,18 +62,18 @@ export const Footer = () => {
         </span>
       </Link>
       
-      {/* Ícone de agendamento (página inicial) */}
-      <Link href="/" className="flex flex-col items-center">
+      {/* Ícone de agendamento (página inicial, abrange todas as subpáginas de agendamentos) */}
+      <Link href="/agendament" className="flex flex-col items-center">
         <Calendar 
           className={cn(
             "w-6 h-6", 
-            isActive("/") ? "text-primary" : "text-muted-foreground"
+            isAgendamentosSection ? "text-primary" : "text-muted-foreground"
           )} 
         />
         <span 
           className={cn(
             "text-[10px] mt-1", 
-            isActive("/") ? "text-primary" : "text-muted-foreground"
+            isAgendamentosSection ? "text-primary" : "text-muted-foreground"
           )}
         >
           Agendamentos
@@ -90,11 +101,14 @@ export const Footer = () => {
       </Link>
       
       {/* Avatar do usuário */}
-      <Link href="/perfil">
+      <Link href="/profile">
         <Image
           src={session?.user?.image ?? ''}
           alt="image user"
-          className="rounded-full -mt-2"
+          className={cn(
+            "rounded-full -mt-2", 
+            isActive("/profile") ? "ring-2 ring-primary" : ""
+          )}
           width={40}
           height={40}
         />

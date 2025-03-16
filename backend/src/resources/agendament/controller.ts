@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { createAgendament, getAllAgendaments } from "./services";
+import { createAgendament, getAgendamentsByUserId, getAllAgendaments } from "./services";
 
-export const getAgendaments = async (req: Request, res: Response) => {
+export const getAgendaments = async (req: Request, res: Response): Promise<void> => {
   try {
     const agendaments = await getAllAgendaments();
     res.status(200).json(agendaments);
@@ -10,16 +10,54 @@ export const getAgendaments = async (req: Request, res: Response) => {
   }
 };
 
-export const createNewAgendament = async (req: Request, res: any) => {
+export const getUserAgendaments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = req.params;
+    
+    if (!userId) {
+      res.status(400).json({ error: "É necessário fornecer o ID do usuário." });
+      return;
+    }
+    
+    const agendaments = await getAgendamentsByUserId(userId);
+    
+    // Formatar os dados para o frontend
+    const formattedAgendaments = agendaments.map(appointment => ({
+      id: appointment.id.toString(),
+      professionalName: appointment.professional.name,
+      professionalSpecialty: appointment.professional.specialty,
+      professionalImage: appointment.professional.image,
+      serviceName: appointment.service.name,
+      appointmentDate: appointment.appointmentDate,
+      appointmentTime: appointment.appointmentTime,
+      price: appointment.service.price,
+      isCanceled: appointment.status === 'CANCELED',
+      status: appointment.status
+    }));
+    
+    res.status(200).json(formattedAgendaments);
+    
+  } catch (error: any) {
+    console.error("Erro ao buscar agendamentos do usuário:", error instanceof Error ? error.stack : error);
+    res.status(500).json({ 
+      error: "Erro ao buscar agendamentos do usuário",
+      message: error.message || "Erro desconhecido" 
+    });
+  }
+};
+
+export const createNewAgendament = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, professionalId, serviceId, appointmentDate, appointmentTime } = req.body;
 
     // Verificação de campos obrigatórios
     if (!userId) {
-      return res.status(400).json({ error: "É necessário fornecer userId." });
+      res.status(400).json({ error: "É necessário fornecer userId." });
+      return;
     }
     if (!professionalId || !serviceId || !appointmentDate || !appointmentTime) {
-      return res.status(400).json({ error: "Todos os campos são obrigatórios." });
+      res.status(400).json({ error: "Todos os campos são obrigatórios." });
+      return;
     }
 
     // Cria o novo agendamento
@@ -31,11 +69,11 @@ export const createNewAgendament = async (req: Request, res: any) => {
       appointmentTime,
     });
 
-    return res.status(201).json({ newAgendament });
+    res.status(201).json({ newAgendament });
 
   } catch (error: any) {
     console.error("Erro ao criar agendamento:", error instanceof Error ? error.stack : error);
-    return res.status(500).json({
+    res.status(500).json({
       error: "Erro ao criar agendamento",
       message: error.message || "Erro desconhecido",
     });

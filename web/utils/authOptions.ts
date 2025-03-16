@@ -1,8 +1,10 @@
 import { type AuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import jwt from "jsonwebtoken"
+import axios from "axios"
 
 const JWT_SECRET = process.env.JWT_SECRET || "wd2e2adwua3215nAXW@_dw2XDauUNDW"
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -12,21 +14,46 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.email = user.email
-        // Assumindo que você tem uma forma de determinar o papel do usuário
-        token.role = "client" // ou qualquer lógica para determinar o papel
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          // Envie os dados para sua API para criar/atualizar o usuário
+          const response = await axios.post(`${API_URL}/auth/google`, {
+            name: user.name,
+            email: user.email,
+            image: user.image,
+            googleId: profile.sub, // ID do Google
+          });
+          
+          // Atualiza o ID do usuário com o ID numérico do banco de dados
+          user.id = response.data.user.id.toString();
+          // Adicione outros dados que você precisa
+          user.role = response.data.user.role;
+          
+          return true;
+        } catch (error) {
+          console.error("Erro ao sincronizar com API:", error);
+          return false;
+        }
       }
-      return token
+      return true;
     },
+    
+    async jwt({ token, user, account }) {
+      // Durante o login inicial, o objeto user terá os dados atualizados
+      if (user && account) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string
-        session.user.email = token.email as string
-        session.user.role = token.role as string
-        // Gerar o token JWT
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        
+        // Gerar o token JWT com o ID numérico
         session.accessToken = jwt.sign(
           {
             userId: token.id,
@@ -35,9 +62,9 @@ export const authOptions: AuthOptions = {
           },
           JWT_SECRET,
           { expiresIn: "1h" },
-        )
+        );
       }
-      return session
+      return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

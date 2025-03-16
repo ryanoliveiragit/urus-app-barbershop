@@ -15,17 +15,18 @@ import {
   Loader2,
   Info,
   Check,
+  ArrowLeft
 } from "lucide-react";
 
 import { formatDateString } from "@/utils/date-object";
-import { LoginBtn } from "@/components/shared/login/login";
 import { useSession } from "next-auth/react";
 import { Footer } from "@/components/shared/footer/footer";
 import { useToast } from "@/hooks/use-toast";
 import { useBooking } from "@/hooks/useBooking";
+import { useRouter } from "next/navigation";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardFooter} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CarouselBarbershop } from "@/components/carousel/carousel";
 
@@ -47,8 +48,9 @@ interface DateTimeSelection {
   time: string;
 }
 
-export default function Home() {
+export default function NovoAgendamentoPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isDrawerOpenServices, setIsDrawerOpenServices] = useState<boolean>(false);
   const { toast } = useToast();
@@ -163,7 +165,7 @@ export default function Home() {
 
     const result = await createBooking({
       userId: session?.user?.id,
-      professionalId: Number(selectProfessional.id),  
+      professionalId: Number(selectProfessional.id),  // Convertido para string
       serviceId: selectServicesAPI[0].id,
       appointmentDate: selectedDateTime.date,
       appointmentTime: selectedDateTime.time,
@@ -171,29 +173,27 @@ export default function Home() {
     });
 
     if (result.success) {
-      // Reset form after successful booking
-      setSelectedProfessional({
-        name: "Selecione o profissional",
-        id: "",
-        image: "",
-        specialty: "",
-      });
-      setSelectedServiceAPI([
-        {
-          name: "Selecione o serviço",
-          id: "",
-          price: "0",
-        },
-      ]);
-      setSelectedDateTime({ date: "", time: "" });
-      setSelectedPaymentMethod("");
+      // Redireciona para a página de agendamentos após sucesso
+      router.push("/");
     }
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Card className="w-full max-w-md border-border shadow-lg">
-
+      <div className="p-4 flex items-center">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="mr-2 h-8 w-8 p-0" 
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-xl font-bold">Novo Agendamento</h1>
+      </div>
+      
+      <Card className="w-full max-w-md mx-auto border-border shadow-lg">
+        <CarouselBarbershop />
         <CardContent className="p-6">
           <AnimatePresence>
             <motion.div
@@ -442,7 +442,6 @@ export default function Home() {
         </CardFooter>
       </Card>
 
-      <LoginBtn />
       <Footer />
     </div>
   );

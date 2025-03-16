@@ -5,6 +5,52 @@ export const getAllAgendaments = async () => {
   return prisma.agendament.findMany();
 };
 
+export const getAgendamentsByUserId = async (userId: string | number) => {
+  // Verificar se o userId é um número ou uma string
+  let userIdNumber: number;
+  
+  if (typeof userId === 'string') {
+    // Se for string, primeiro tentamos buscar o usuário pelo googleId
+    const user = await prisma.user.findUnique({
+      where: { googleId: userId },
+    });
+    
+    if (!user) {
+      throw new Error(`Usuário com googleId ${userId} não encontrado.`);
+    }
+    
+    userIdNumber = user.id;
+  } else {
+    // Se for número, usamos diretamente
+    userIdNumber = userId;
+  }
+
+  // Buscar todos os agendamentos do usuário
+  return prisma.agendament.findMany({
+    where: { 
+      userId: userIdNumber 
+    },
+    include: {
+      professional: {
+        select: {
+          name: true,
+          image: true,
+          specialty: true
+        }
+      },
+      service: {
+        select: {
+          name: true,
+          price: true
+        }
+      }
+    },
+    orderBy: {
+      appointmentDate: 'desc'
+    }
+  });
+};
+
 export const createAgendament = async (agendamentData: {
   userId: number | string; // userId pode ser tanto string (googleId) quanto número (ID do usuário)
   professionalId: number;

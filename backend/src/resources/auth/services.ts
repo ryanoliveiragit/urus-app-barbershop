@@ -37,7 +37,7 @@ export const loginUser = async (email: string, password: string) => {
 
 export const googleAuth = async (req: Request, res: Response) => {
   const { name, email, image, googleId } = req.body;
-  console.error('bateu');
+  
   try {
     let user = await prisma.user.findFirst({
       where: { 
@@ -49,19 +49,16 @@ export const googleAuth = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      // Criar novo usuário
       user = await prisma.user.create({
         data: {
           name,
           email,
           image,
           googleId,
-          role: 'client', // Definindo o papel padrão como cliente
+          role: 'client',
         },
       });
-      console.log('Usuário criado:', user);
     } else {
-      // Atualizar informações do usuário existente
       user = await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -72,13 +69,16 @@ export const googleAuth = async (req: Request, res: Response) => {
       });
     }
 
-    const token = jwt.sign({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    }, JWT_SECRET, { expiresIn: '1d' });
-
-    res.json({ user, token });
+    // Retorne o ID numérico claramente
+    res.json({ 
+      user: {
+        id: user.id,  // Aqui é o ID numérico do banco de dados
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        role: user.role
+      }
+    });
   } catch (error) {
     console.error('Erro na autenticação do Google:', error);
     res.status(500).json({ error: 'Erro na autenticação' });
