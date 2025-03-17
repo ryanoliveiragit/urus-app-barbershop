@@ -105,3 +105,19 @@ export const createAgendament = async (agendamentData: {
   });
 };
 
+export const cancelAgendament = async (id: number) => {
+
+  // Verificação se o agendamento existe
+  const verifyAgendament = await prisma.agendament.findFirst({ where: { id }})
+
+  if (!verifyAgendament) throw new Error(`O agendamento de id ${id} não existe`)
+  try {
+    // Deleta o agendamento
+    await prisma.agendament.delete({ where: { id }})
+  } catch (err) {
+    // log
+    throw new Error('Erro ao cancelar agendamento')
+  }
+
+  // Notificar o cliente e o barbeiro do cancelamento do agendamento
+}

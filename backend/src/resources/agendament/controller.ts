@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import { createAgendament, getAgendamentsByUserId, getAllAgendaments } from "./services";
+import { cancelAgendament, createAgendament, getAgendamentsByUserId, getAllAgendaments } from "./services";
 
 export const getAgendaments = async (req: Request, res: Response): Promise<void> => {
   try {
     const agendaments = await getAllAgendaments();
     res.status(200).json(agendaments);
   } catch (error: any) {
+    console.log(error) // debug
     res.status(500).json({ error: "Erro ao obter agendamentos" });
   }
 };
@@ -70,11 +71,32 @@ export const createNewAgendament = async (req: Request, res: Response): Promise<
     });
 
     res.status(201).json({ newAgendament });
-
   } catch (error: any) {
     console.error("Erro ao criar agendamento:", error instanceof Error ? error.stack : error);
     res.status(500).json({
       error: "Erro ao criar agendamento",
+      message: error.message || "Erro desconhecido",
+    });
+  }
+};
+
+export const cancelAgendaments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { agendamentId } = req.body;
+
+    // Verificação de campos obrigatórios
+    if (!agendamentId) {
+      res.status(400).json({ error: "É necessário fornecer agendamentId." });
+      return;
+    }
+
+    // Cancelando pelo id no service
+    const cancel = await cancelAgendament(agendamentId)
+    res.status(201).json({ cancel });
+  } catch (error: any) {
+    console.error("Erro ao cancelar agendamento:", error instanceof Error ? error.stack : error);
+    res.status(500).json({
+      error: "Erro ao cancelar agendamento",
       message: error.message || "Erro desconhecido",
     });
   }
