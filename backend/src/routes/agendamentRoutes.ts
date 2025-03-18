@@ -8,9 +8,9 @@ import {
 import { authenticateJWT } from "../resources/auth/authMiddleware";
 const router = express.Router();
 
-router.get("/", getAgendaments);
-router.post("/", createNewAgendament);
-router.post("/cancel", cancelAgendaments)
+router.get("/", authenticateJWT, getAgendaments);
+router.post("/", authenticateJWT, createNewAgendament);
+router.post("/cancel", authenticateJWT, cancelAgendaments)
 
 router.get("/user/:userId", authenticateJWT, getUserAgendaments);
 
