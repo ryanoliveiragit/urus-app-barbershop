@@ -4,8 +4,8 @@ import { createNewUser, getUsers, getBarbers } from "../resources/users/controll
 
 const router = express.Router()
 
-router.get("/", authenticateJWT, getUsers)
-router.get("/barbers",  getBarbers)
+router.get("/", getUsers)
+router.get("/barbers", authenticateJWT, getBarbers)
 router.post("/", createNewUser)
 
 export default router

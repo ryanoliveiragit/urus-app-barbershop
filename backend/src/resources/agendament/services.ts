@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { sendEmailCanceledAgendament, sendEmailCreatedAgendament } from "../email/services";
 
 
 export const getAllAgendaments = async () => {
@@ -8,17 +9,17 @@ export const getAllAgendaments = async () => {
 export const getAgendamentsByUserId = async (userId: string | number) => {
   // Verificar se o userId é um número ou uma string
   let userIdNumber: number;
-  
+
   if (typeof userId === 'string') {
     // Se for string, primeiro tentamos buscar o usuário pelo googleId
     const user = await prisma.user.findUnique({
       where: { googleId: userId },
     });
-    
+
     if (!user) {
       throw new Error(`Usuário com googleId ${userId} não encontrado.`);
     }
-    
+
     userIdNumber = user.id;
   } else {
     // Se for número, usamos diretamente
@@ -27,8 +28,8 @@ export const getAgendamentsByUserId = async (userId: string | number) => {
 
   // Buscar todos os agendamentos do usuário
   return prisma.agendament.findMany({
-    where: { 
-      userId: userIdNumber 
+    where: {
+      userId: userIdNumber
     },
     include: {
       professional: {
@@ -94,28 +95,31 @@ export const createAgendament = async (agendamentData: {
   }
 
   // Criar o agendamento
-  return prisma.agendament.create({
+  const create = await prisma.agendament.create({
     data: {
       userId: userExists.id, // Sempre usamos o ID numérico do usuário
       professionalId,
       serviceId,
       appointmentDate,
       appointmentTime,
-    },
-  });
-};
+    }
+  })
+  const sendEmail = await sendEmailCreatedAgendament(userId, create.id)
+}
 
 export const cancelAgendament = async (id: number) => {
 
   // Verificação se o agendamento existe
-  const verifyAgendament = await prisma.agendament.findFirst({ where: { id }})
+  const verifyAgendament = await prisma.agendament.findFirst({ where: { id } })
 
   if (!verifyAgendament) throw new Error(`O agendamento de id ${id} não existe`)
+
   try {
-    // Deleta o agendamento
-    await prisma.agendament.delete({ where: { id }})
+    // Envia o email e deleta o agendamento
+    await sendEmailCanceledAgendament(verifyAgendament.userId, id)
+    await prisma.agendament.delete({ where: { id } })
   } catch (err) {
-    // log
+    console.log(err)
     throw new Error('Erro ao cancelar agendamento')
   }
 
