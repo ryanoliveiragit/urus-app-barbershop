@@ -4,7 +4,6 @@ import { prisma } from "../../lib/prisma";
 import * as jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../../config/secrets";
 
-
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await getAllUsers();

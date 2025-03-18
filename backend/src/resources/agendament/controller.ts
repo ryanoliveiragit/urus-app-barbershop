@@ -40,10 +40,7 @@ export const getUserAgendaments = async (req: Request, res: Response): Promise<v
     
   } catch (error: any) {
     console.error("Erro ao buscar agendamentos do usuário:", error instanceof Error ? error.stack : error);
-    res.status(500).json({ 
-      error: "Erro ao buscar agendamentos do usuário",
-      message: error.message || "Erro desconhecido" 
-    });
+    res.status(200).json([]);
   }
 };
 
