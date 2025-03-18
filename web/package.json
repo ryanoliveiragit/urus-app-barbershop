@@ -33,7 +33,7 @@
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.474.0",
     "mercadopago": "^2.3.0",
-    "next": "14.2.16",
+    "next": "^14.2.24",
     "next-auth": "^4.24.11",
     "next-swr": "^0.2.0-canary.0",
     "qrcode.react": "^4.2.0",
