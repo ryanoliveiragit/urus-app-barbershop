@@ -1,15 +1,16 @@
 import { ReactNode } from "react";
 
 export interface Appointment {
-  id: string;
-  professionalName: string;
-  professionalSpecialty?: string;
-  professionalImage?: string;
-  serviceName: string;
-  appointmentDate: string;
-  appointmentTime: string;
-  price: string;
-  isCanceled?: boolean;
+  id: string
+  professionalName: string
+  professionalSpecialty?: string
+  professionalImage?: string
+  serviceName: string
+  appointmentDate: string
+  appointmentTime: string
+  price: string
+  isCanceled?: boolean
+  status?: string
 }
 
 export interface Suggestion {

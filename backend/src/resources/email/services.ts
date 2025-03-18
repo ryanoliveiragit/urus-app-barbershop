@@ -6,8 +6,8 @@ import { createAgendamentBody, cancelAgendamentBody, createAgendamentBarberBody,
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: "vemencycompany@gmail.com", // env
-        pass: "dpdykesfdejpkdpw", // env
+        user: "", // env
+        pass: "", // env
     }
 })
 
