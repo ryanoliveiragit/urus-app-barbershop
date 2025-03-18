@@ -22,7 +22,7 @@ import { formatDateString } from "@/utils/date-object";
 import { useSession } from "next-auth/react";
 import { Footer } from "@/components/shared/footer/footer";
 import { useToast } from "@/hooks/use-toast";
-import { useBooking } from "@/hooks/useBooking";
+import { useBooking } from "@/hooks/useAgendament";
 import { useRouter } from "next/navigation";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -193,7 +193,7 @@ export default function NovoAgendamentoPage() {
       </div>
       
       <Card className="w-full max-w-md mx-auto border-border shadow-lg">
-        <CarouselBarbershop />
+        {/* <CarouselBarbershop /> */}
         <CardContent className="p-6">
           <AnimatePresence>
             <motion.div
