@@ -12,6 +12,7 @@ dotenv.config();
 import agendamentRoutes from './routes/agendamentRoutes';
 import subscriptionsRoutes from './routes/subscriptionsRoutes';
 import commoditiesRoutes from './routes/commoditiesRoutes';
+import contactRoutes from './routes/contactRoutes'
 import servicesRoutes from './routes/servicesRoutes';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
@@ -66,6 +67,7 @@ app.use("/services", servicesRoutes);
 app.use("/agendament", agendamentRoutes);
 app.use("/subscription", subscriptionsRoutes);
 app.use("/commodity", commoditiesRoutes);
+app.use("/contact", contactRoutes);
 app.use("/auth", authRoutes);
 app.use("/orders", paymentOrderRoutes);
 app.use("/pix", pixRoutes); // Rota para pagamentos PIX

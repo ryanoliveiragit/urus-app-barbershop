@@ -29,26 +29,28 @@ model Services {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(100)
-  email     String   @unique @db.VarChar(100)
-  password  String? // Tornando a senha opcional para usuários do Google
-  phone     String?  @db.VarChar(15)
-  role      Role     @default(client)
-  specialty String?  @db.VarChar(100)
-  createdAt DateTime @default(now())
-  image     String   @default("https://www.ibimirim.pe.leg.br/imagens/semimagemavatar.png") @db.VarChar(255)
-  updatedAt DateTime @updatedAt
-  googleId  String?  @unique 
-  paymentId String?
-  clientAppointments       Agendament[]   @relation("ClientAppointments")
-  professionalAppointments Agendament[]   @relation("ProfessionalAppointments")
+  id                       Int          @id @default(autoincrement())
+  name                     String       @db.VarChar(100)
+  email                    String       @unique @db.VarChar(100)
+  password                 String? // Tornando a senha opcional para usuários do Google
+  phone                    String?      @db.VarChar(15)
+  sendOptions              String?      @default("email") // email or phone or both
+  authCode                 Int? // Campo para ser usado para geração de auth codes/verificação deles
+  role                     Role         @default(client)
+  specialty                String?      @db.VarChar(100)
+  createdAt                DateTime     @default(now())
+  image                    String       @default("https://www.ibimirim.pe.leg.br/imagens/semimagemavatar.png") @db.VarChar(255)
+  updatedAt                DateTime     @updatedAt
+  googleId                 String?      @unique
+  paymentId                String?
+  clientAppointments       Agendament[] @relation("ClientAppointments")
+  professionalAppointments Agendament[] @relation("ProfessionalAppointments")
 }
 
 model OrderPayment {
-  id             Int      @id @default(autoincrement())
-  paymentId         String?   @default("") 
-  userId String @db.VarChar(100)
+  id        Int     @id @default(autoincrement())
+  paymentId String? @default("")
+  userId    String  @db.VarChar(100)
 }
 
 model Agendament {

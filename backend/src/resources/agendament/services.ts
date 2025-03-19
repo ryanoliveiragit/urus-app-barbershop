@@ -9,7 +9,6 @@ export const getAllAgendaments = async () => {
 export const getAgendamentsByUserId = async (userId: string | number) => {
   // Verificar se o userId é um número ou uma string
   let userIdNumber: number;
-  console.log("userId", typeof userId)
 
   if (typeof userId === 'string') {
     // Se for string, primeiro tentamos buscar o usuário pelo googleId
