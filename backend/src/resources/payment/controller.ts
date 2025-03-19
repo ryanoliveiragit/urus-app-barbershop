@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { createOrderPayment, getOrdersByEmail, updateOrderPayment, getAllOrderPayments, deleteOrderPayment, getOrdersByUserId } from "./services";
-import { prisma } from "../../lib/prisma";
 
 export const getOrdersByUserIdController = async (req: Request, res: Response): Promise<any> => {
   const { userId } = req.params; // Recebe o userId como parâmetro da URL

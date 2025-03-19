@@ -9,6 +9,7 @@ export const getAllAgendaments = async () => {
 export const getAgendamentsByUserId = async (userId: string | number) => {
   // Verificar se o userId é um número ou uma string
   let userIdNumber: number;
+  console.log("userId", typeof userId)
 
   if (typeof userId === 'string') {
     // Se for string, primeiro tentamos buscar o usuário pelo googleId
@@ -53,7 +54,7 @@ export const getAgendamentsByUserId = async (userId: string | number) => {
 };
 
 export const createAgendament = async (agendamentData: {
-  userId: number | string; // userId pode ser tanto string (googleId) quanto número (ID do usuário)
+  userId: number; // userId pode ser tanto string (googleId) quanto número (ID do usuário)
   professionalId: number;
   serviceId: number;
   appointmentDate: string;

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export const Footer = () => {
+export const Footer = ({ className }: { className?: string }) => {
   const { data: session } = useSession();
   const pathname = usePathname();
   
@@ -25,19 +25,19 @@ export const Footer = () => {
   const isAgendamentosSection = isActive("/");
 
   return (
-    <footer className="mt-auto p-3.5 justify-between bg-zinc-900 flex w-full items-center">
+    <footer className={`mt-auto p-3.5 justify-between bg-zinc-900 flex w-full items-center ${className}`}>
       {/* Indicações */}
-      <Link href="/indicacoes" className="flex flex-col items-center">
+      <Link href="/indications" className="flex flex-col items-center">
         <Users 
           className={cn(
             "w-5 h-5", 
-            isActive("/indicacoes") ? "text-primary" : "text-muted-foreground"
+            isActive("/indications") ? "text-primary" : "text-muted-foreground"
           )} 
         />
         <span 
           className={cn(
             "text-[10px] mt-1", 
-            isActive("/indicacoes") ? "text-primary" : "text-muted-foreground"
+            isActive("/indications") ? "text-primary" : "text-muted-foreground"
           )}
         >
           Indicações

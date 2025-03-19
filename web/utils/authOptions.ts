@@ -22,7 +22,8 @@ export const authOptions: AuthOptions = {
             name: user.name,
             email: user.email,
             image: user.image,
-            googleId: profile.sub, // ID do Google
+            phone: user.phone,
+            googleId: profile?.sub, // ID do Google
           });
           
           // Atualiza o ID do usuário com o ID numérico do banco de dados
@@ -52,13 +53,14 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        
+        session.user.phone = token.phone as string; 
         // Gerar o token JWT com o ID numérico
         session.accessToken = jwt.sign(
           {
             userId: token.id,
             email: token.email,
             role: token.role,
+            phone: token.phone,
           },
           JWT_SECRET,
           { expiresIn: "1h" },

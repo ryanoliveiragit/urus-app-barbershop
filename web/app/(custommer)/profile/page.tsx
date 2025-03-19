@@ -108,6 +108,7 @@ export default function ProfilePage() {
                   <div>
                     <CardTitle className="text-2xl">{session.user?.name}</CardTitle>
                     <CardDescription>{session.user?.email}</CardDescription>
+                  {session.user.phone}
                   </div>
                 </div>
               </CardHeader>

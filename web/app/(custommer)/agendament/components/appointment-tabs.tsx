@@ -76,7 +76,7 @@ export function AppointmentTabs({
               buttonAction={searchTerm || filters.status !== "all" ? undefined : onNewAppointment}
             />
           ) : (
-            <div className="max-h-[calc(100vh-40vh)] overflow-y-auto pr-2 space-y-4">
+            <div className="max-h-[calc(100vh-44vh)] overflow-y-auto pr-2 space-y-4">
               {filteredUpcoming.map((appointment) => (
                 <AppointmentCard key={appointment.id} appointment={appointment} />
               ))}
@@ -95,7 +95,7 @@ export function AppointmentTabs({
 
         <TabsContent value="historico" key="historico">
           {isPageLoading || isLoading ? (
-            <div className="max-h-[calc(100vh-300px)] overflow-y-auto pr-2 space-y-4">
+            <div className="max-h-[calc(100vh-200px)] overflow-y-auto pr-2 space-y-4">
               <AppointmentSkeleton />
               <AppointmentSkeleton />
               <AppointmentSkeleton />

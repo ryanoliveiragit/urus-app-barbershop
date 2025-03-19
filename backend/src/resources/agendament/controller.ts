@@ -20,7 +20,7 @@ export const getUserAgendaments = async (req: Request, res: Response): Promise<v
       return;
     }
     
-    const agendaments = await getAgendamentsByUserId(userId);
+    const agendaments = await getAgendamentsByUserId(Number(userId));
     
     // Formatar os dados para o frontend
     const formattedAgendaments = agendaments.map(appointment => ({

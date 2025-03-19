@@ -51,19 +51,18 @@ export default function AgendamentosPage() {
   // Se o usuário não estiver autenticado, mostra mensagem
   if (status !== "authenticated") {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex flex-col  bg-background">
         <div className="flex-1 p-6 flex flex-col items-center justify-center">
           <h2 className="text-xl font-bold mb-6 text-center">Faça login para visualizar seus agendamentos</h2>
           <LoginBtn />
         </div>
-        <Footer />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <main className="flex-1 max-w-4xl mx-auto w-full p-4">
+    <div className="flex flex-col bg-background">
+      <main className="flex-1 max-w-2xl mx-auto w-full p-4">
         <div className="mb-6 mt-2 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Agendamentos</h1>
@@ -92,7 +91,7 @@ export default function AgendamentosPage() {
           handleResetFilters={handleResetFilters}
         />
 
-        <div className="mt-6">
+        <div className="mt-3">
           <AppointmentTabs
             isPageLoading={isPageLoading}
             isLoading={isLoading}
@@ -104,8 +103,6 @@ export default function AgendamentosPage() {
           />
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }

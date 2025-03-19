@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
 import { createUser, getAllBarbers, getAllUsers } from "./services";
-import { prisma } from "../../lib/prisma";
-import * as jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../../config/secrets";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {

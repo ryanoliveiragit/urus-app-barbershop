@@ -30,6 +30,7 @@ export const loginUser = async (email: string, password: string) => {
   return {
     name: user.name,
     email: user.email,
+    phone: user.phone,
     accessToken,
     refreshToken,
   }
@@ -56,6 +57,7 @@ export const googleAuth = async (req: Request, res: Response) => {
           image,
           googleId,
           role: 'client',
+          phone: ""
         },
       });
     } else {
@@ -65,6 +67,7 @@ export const googleAuth = async (req: Request, res: Response) => {
           name,
           image,
           googleId,
+          phone: ""
         },
       });
     }
@@ -76,7 +79,8 @@ export const googleAuth = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         image: user.image,
-        role: user.role
+        role: user.role,
+        phone: user.phone
       }
     });
   } catch (error) {

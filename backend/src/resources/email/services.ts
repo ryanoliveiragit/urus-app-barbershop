@@ -6,8 +6,8 @@ import { createAgendamentBody, cancelAgendamentBody, createAgendamentBarberBody,
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: "urusbarbearia@gmail.com", // env
-        pass: "hvtqnomuzmltayke", // env
+        user: "vemencycompany@gmail.com", 
+        pass: "zxzxmdrlfizocygo",
     }
 })
 
@@ -38,8 +38,7 @@ async function getBarber(barberId: number) {
     })
 }
 
-// Refatorar depois a tipagem do userId para somente number em todas as ocasiões 
-async function sendEmailCreatedAgendament(userId: string | number, agendamentId: number) {
+async function sendEmailCreatedAgendament(userId: number, agendamentId: number) {
     const clientInfo = await getUserById(userId)
     const agendamentInfo = await getAgendamentById(agendamentId)
     const serviceInfo = await getServiceById(agendamentInfo.serviceId)

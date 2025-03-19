@@ -6,33 +6,36 @@ import { useSession } from "next-auth/react"
 import { useToast } from "@/hooks/use-toast"
 import { BookingService, type BookingResponse, type BookingParams } from "@/services/bookingService"
 
+// Custom fetcher function for SWR that handles userId as number
+const bookingFetcher = async ([url, token, userId]: [string, string, number]) => {
+  return await BookingService.getBookingsByUserId(userId, token)
+}
 
-
-// hooks/useBooking.ts
 export const useBooking = () => {
   const { data: session } = useSession()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
 
-  const userId = session?.user?.id
+  // Ensure userId is treated as a number
+  const userId = session?.user?.id as number | undefined
   const token = session?.accessToken as string
 
   // Fetch dos agendamentos do usuário atual
   const { data, error, isLoading, mutate } = useSWR(
-    userId && token ? [`/api/agendaments/user/${userId}`, token] : null,
-    async ([, token]) => {
-      try {
-        return await BookingService.getBookingsByUserId(userId as string, token)
-      } catch (error) {
+    userId && token ? [`/api/agendaments/user/${userId}`, token, userId] : null,
+    bookingFetcher,
+    {
+      onError: (error) => {
         console.error("Erro ao buscar agendamentos:", error)
         toast({
           title: "Erro",
           description: "Não foi possível carregar seus agendamentos.",
           variant: "destructive",
         })
-        throw error
-      }
-    },
+      },
+      revalidateOnFocus: false,
+      dedupingInterval: 10000, // 10 seconds
+    }
   )
 
   // Separar os agendamentos em próximos e histórico
@@ -168,4 +171,3 @@ export const useBooking = () => {
     refreshBookings: mutate,
   }
 }
-

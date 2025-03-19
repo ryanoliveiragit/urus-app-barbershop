@@ -3,7 +3,7 @@ import axios from "axios"
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export interface BookingParams {
-  userId?: string
+  userId?: number
   professionalId: number
   serviceId: string
   appointmentDate: string
@@ -13,7 +13,7 @@ export interface BookingParams {
 
 export interface BookingResponse {
   id: string
-  userId: string
+  userId: number
   barberId: string
   professionalId: number
   serviceId: string
@@ -41,7 +41,7 @@ export const BookingService = {
     return response.data
   },
 
-  async getBookingsByUserId(userId: string, token: string): Promise<BookingResponse[]> {
+  async getBookingsByUserId(userId: number, token: string): Promise<BookingResponse[]> {
     const response = await axios.get<BookingResponse[]>(`${API_URL}/agendament/user/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -50,16 +50,7 @@ export const BookingService = {
     return response.data
   },
 
-  async getBookings(token: string): Promise<BookingResponse[]> {
-    const response = await axios.get<BookingResponse[]>(`${API_URL}/agendament`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    return response.data
-  },
-
-  async getBookingById(id: string, token: string): Promise<BookingResponse> {
+  async getBookingById(id: number, token: string): Promise<BookingResponse> {
     const response = await axios.get<BookingResponse>(`${API_URL}/agendament/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,

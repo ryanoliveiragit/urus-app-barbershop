@@ -18,6 +18,7 @@ export const getAllBarbers = async () => {
       name: true,
       specialty: true,
       email: true,
+      phone: true,
       image: true
     },
   });
