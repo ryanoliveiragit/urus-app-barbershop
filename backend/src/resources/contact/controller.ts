@@ -60,8 +60,9 @@ export const contactOption = async (req: Request, res: Response): Promise<void> 
         res.status(400).json({ error: "É necessário fornecer uma opção de contato" })
         return
     }
-    if (contactOption != "email" || contactOption != "phone" || contactOption != "both" ) {
+    if (contactOption != "email" && contactOption != "phone" && contactOption != "both" ) {
         res.status(400).json({ error: "Opção de contato inválida" })
+        return
     }
 
     try {

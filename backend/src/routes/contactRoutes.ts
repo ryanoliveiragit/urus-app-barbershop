@@ -5,7 +5,8 @@ import { sendCode, verifyPhone, contactOption } from "../resources/contact/contr
 
 const router = express.Router()
 
-// router.get("/",authenticateJWT, getUsers)
-// PUT pra alterar o phone, PUT pra verificação do codigo, PUT pra setar o tipo de envio (phone, email, both)
+router.post("/send-sms", sendCode)
+router.post("/verify-phone", verifyPhone)
+router.post("/set-contact-option", contactOption)
 
 export default router
